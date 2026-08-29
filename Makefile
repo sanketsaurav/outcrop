@@ -1,8 +1,8 @@
 .PHONY: test server-dev plugin plugin-dev docker hooks release-plugin release-server
 
-test: ## Server: vet + tests · Plugin: typecheck, unit tests, lint, build
+test: ## Server: vet + tests · Plugin: typecheck, unit tests, lint, format, build
 	cd server && test -z "$$(gofmt -l .)" && go vet ./... && go test ./...
-	cd plugin && npm run test && npm run lint && npm run build
+	cd plugin && npm run test && npm run lint && npm run format:check && npm run build
 
 server-dev: ## Run the server locally with throwaway config
 	cd server && API_KEY=dev-key-0123456789abcdef BASE_URL=http://localhost:8080 \

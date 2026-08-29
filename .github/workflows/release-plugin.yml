@@ -36,5 +36,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag="${GITHUB_REF#refs/tags/}"
+          # Notes come from this tag's CHANGELOG.md section ("## X.Y.Z ...");
+          # fall back to a generated commit list when no section matches.
+          notes_args="--generate-notes"
+          if [ -f CHANGELOG.md ]; then
+            awk -v v="## ${tag} " 'index($0, v) == 1 {f=1; next} /^## /{f=0} f' CHANGELOG.md > /tmp/notes.md
+            if [ -s /tmp/notes.md ]; then
+              notes_args="--notes-file /tmp/notes.md"
+            else
+              echo "::warning::no CHANGELOG.md section matching '## ${tag} ' — using generated notes"
+            fi
+          fi
           gh release create "$tag" manifest.json plugin/main.js plugin/styles.css \
-            --title "Outcrop plugin $tag" --generate-notes
+            --title "Outcrop plugin $tag" $notes_args
