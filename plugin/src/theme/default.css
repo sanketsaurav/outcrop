@@ -1,0 +1,625 @@
+/* ==========================================================================
+   Outcrop default theme — "vattam"
+   ==========================================================================
+   Served as /t/site.css on every public note page. The look mirrors a
+   Minimal-theme Obsidian setup: Google Sans at weight 450, Crimson Pro
+   italic titles, compact headings, quiet links, iconless callouts.
+   Fonts load from Google Fonts via the head snippet.
+
+   ┌─ DESIGN TOKENS — edit these first ─────────────────────────────────────┐
+   │ Most personalization is done right here: fonts, colors, width, radius. │
+   │ Font <link> tags live in the head snippet next to this editor.         │
+   └────────────────────────────────────────────────────────────────────────┘ */
+
+:root {
+	--font-text: "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--font-mono: "Google Sans Code", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+	--font-title: "Crimson Pro", Georgia, "Times New Roman", serif;
+	--font-weight: 450;
+	--bold-weight: 600; /* body weight + 150, the Minimal bold-modifier */
+	--max-width: 40rem;
+
+	--bg: #ffffff;
+	--fg: #1c1c1c;
+	--muted: #6e6e6e;
+	--accent: #0c7e1f;
+	--accent-hover: #096317;
+	--accent-rgb: 12, 126, 31;
+	--code-bg: #f6f6f6;
+	--border: #e6e6e6;
+	--mark-bg: #fdf0b0;
+	--radius: 8px;
+
+	/* Callout colors as r, g, b triplets (used at several opacities). */
+	--callout-blue: 8, 109, 221;
+	--callout-teal: 0, 150, 137;
+	--callout-cyan: 0, 160, 200;
+	--callout-green: 8, 185, 78;
+	--callout-yellow: 224, 172, 0;
+	--callout-orange: 236, 117, 0;
+	--callout-red: 233, 49, 71;
+	--callout-purple: 120, 82, 238;
+	--callout-gray: 120, 122, 132;
+
+	color-scheme: light;
+}
+
+/* Dark tokens apply when the system prefers dark (unless the visitor picked
+   light), and always when the visitor picked dark — the footer theme switcher
+   sets data-theme on <html>, persisted per browser by site.js. Keep both
+   blocks in sync. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--bg: #1e1e1e;
+		--fg: #dcdcdc;
+		--muted: #9a9a9a;
+		--accent: #62c46a;
+		--accent-hover: #7ad381;
+		--accent-rgb: 98, 196, 106;
+		--code-bg: #272727;
+		--border: #333333;
+		--mark-bg: #4a4413;
+		color-scheme: dark;
+	}
+}
+
+:root[data-theme="dark"] {
+	--bg: #1e1e1e;
+	--fg: #dcdcdc;
+	--muted: #9a9a9a;
+	--accent: #62c46a;
+	--accent-hover: #7ad381;
+	--accent-rgb: 98, 196, 106;
+	--code-bg: #272727;
+	--border: #333333;
+	--mark-bg: #4a4413;
+	color-scheme: dark;
+}
+
+/* ==========================================================================
+   Page shell (matches the server template: .note, .note-header, .note-body…)
+   ========================================================================== */
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--fg);
+	font-family: var(--font-text);
+	font-size: 16px;
+	font-weight: var(--font-weight);
+	line-height: 1.5;
+	/* Google Sans variable-font settings, per the official embed. */
+	font-optical-sizing: auto;
+	font-variation-settings: "GRAD" 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.note {
+	max-width: var(--max-width);
+	margin: 0 auto;
+	padding: 3.5rem 1.25rem 6rem;
+}
+
+.note-header {
+	margin-bottom: 2rem;
+}
+
+/* The note title, in Crimson Pro italic — the editorial contrast against
+   the Google Sans body, matching the vault's inline-title treatment. */
+.note-title {
+	margin: 0 0 0.3rem;
+	font-family: var(--font-title);
+	font-style: italic;
+	font-weight: 600;
+	font-size: 1.7rem;
+	line-height: 1.15;
+}
+
+/* The date under the title is hidden — "published" in the footer carries it.
+   Delete this rule to bring it back. */
+.note-date {
+	display: none;
+}
+
+/* Footer: the metadata block (powered-by, theme switcher, permalink, created
+   date). Everything muted, borderless, quiet — the whole block sits at 65%
+   opacity and wakes up on hover. */
+.note-footer {
+	margin-top: 6rem;
+	color: var(--muted);
+	font-size: 0.85rem;
+	opacity: 0.65;
+	transition: opacity 200ms ease;
+}
+
+.note-footer:hover {
+	opacity: 1;
+}
+
+/* Footer links: no underlines — every link carries a Lucide arrow-up-right,
+   sized to match the text (viewBox cropped to the glyph). */
+.note-footer a {
+	color: inherit;
+	text-decoration: none;
+	overflow-wrap: anywhere;
+	transition: opacity 120ms ease;
+}
+
+.note-footer a:hover {
+	opacity: 0.7;
+}
+
+.note-footer a::after {
+	content: "";
+	display: inline-block;
+	width: 0.7em;
+	height: 0.7em;
+	margin-left: 0.25em;
+	background-color: currentColor;
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 14 14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='7' y1='17' x2='17' y2='7'/%3E%3Cpolyline points='7 7 17 7 17 17'/%3E%3C/svg%3E") no-repeat center / contain;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 14 14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='7' y1='17' x2='17' y2='7'/%3E%3Cpolyline points='7 7 17 7 17 17'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+.note-details {
+	border-collapse: collapse;
+}
+
+.note-details th, .note-details td {
+	border: none;
+	padding: 0.5em 0;
+	line-height: 1.5;
+	text-align: left;
+	vertical-align: middle;
+	font-weight: var(--font-weight);
+	color: var(--muted);
+}
+
+.note-details th {
+	text-transform: lowercase;
+	min-width: 8.5rem;
+	padding-right: 2.5em;
+	white-space: nowrap;
+}
+
+/* Theme switcher: bare text options. The active one gets a small dot that
+   slides in from the right and settles left of the label. Dots live in a
+   gutter so labels stay put — no layout shift, no backgrounds. */
+.theme-switch {
+	display: inline-flex;
+	gap: 1.4em;
+	margin-left: calc(-5px - 0.45em); /* dot gutter — labels align with the value column */
+}
+
+.theme-pill {
+	font: inherit;
+	color: var(--muted);
+	background: none;
+	border: none;
+	padding: 0.15em 0;
+	cursor: pointer;
+	transition: color 150ms ease;
+}
+
+.theme-pill::before {
+	content: "";
+	display: inline-block;
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: currentColor;
+	margin-right: 0.45em;
+	vertical-align: middle;
+	opacity: 0;
+	transform: translateX(6px);
+	transition: opacity 240ms ease, transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.theme-pill:hover {
+	color: var(--fg);
+}
+
+.theme-pill[aria-pressed="true"] {
+	color: var(--fg);
+}
+
+.theme-pill[aria-pressed="true"]::before {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.note-footer, .theme-pill, .theme-pill::before {
+		transition: none;
+	}
+}
+
+/* ==========================================================================
+   Typography — compact scale: headings sit close to body size, bold at 700
+   ========================================================================== */
+
+.note-body h1, .note-body h2, .note-body h3,
+.note-body h4, .note-body h5, .note-body h6 {
+	margin: 1.4em 0 0.35em;
+	line-height: 1.5;
+	scroll-margin-top: 1.5rem;
+}
+
+.note-body h1 { font-size: 1.2em; font-weight: 700; }
+.note-body h2 { font-size: 1.1em; font-weight: 700; }
+.note-body h3 { font-size: 1em; font-weight: 700; }
+.note-body h4 { font-size: 1em; font-weight: 600; }
+.note-body h5, .note-body h6 { font-size: 1em; font-weight: 600; color: var(--muted); }
+
+.note-body p {
+	margin: 0 0 0.5em;
+}
+
+strong, b {
+	font-weight: var(--bold-weight);
+}
+
+/* Links read as normal text with a thin muted underline; accent on hover. */
+.note-body a {
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-thickness: 0.8px;
+	text-decoration-color: var(--muted);
+	text-underline-offset: 0.18em;
+	transition: opacity 120ms ease;
+}
+
+.note-body a:hover {
+	opacity: 0.7; /* links never change color on hover — only opacity */
+}
+
+/* Wikilinks whose targets aren't shared (when "styled non-link" is chosen). */
+.unshared-link {
+	border-bottom: 1px dotted var(--muted);
+	cursor: default;
+}
+
+mark {
+	background: var(--mark-bg);
+	color: inherit;
+	padding: 0 0.15em;
+	border-radius: 3px;
+}
+
+hr {
+	border: none;
+	border-top: 1px solid var(--border);
+	margin: 2rem 0;
+}
+
+/* Heading anchor links added by site.js */
+.heading-anchor {
+	margin-left: 0.35em;
+	opacity: 0;
+	font-weight: 400;
+	text-decoration: none !important;
+}
+
+h1:hover .heading-anchor, h2:hover .heading-anchor, h3:hover .heading-anchor,
+h4:hover .heading-anchor, h5:hover .heading-anchor, h6:hover .heading-anchor {
+	opacity: 0.7;
+}
+
+/* ==========================================================================
+   Lists & tasks
+   ========================================================================== */
+
+.note-body ul, .note-body ol {
+	padding-left: 1.5em;
+	margin: 0 0 0.5em;
+}
+
+.note-body li {
+	margin: 0.35em 0 0;
+}
+
+.note-body li::marker {
+	color: var(--muted);
+}
+
+ul.contains-task-list {
+	list-style: none;
+	padding-left: 0.4em;
+}
+
+.task-list-item {
+	display: flex;
+	align-items: baseline;
+	gap: 0.55em;
+}
+
+.task-list-item-checkbox {
+	appearance: none;
+	width: 1em;
+	height: 1em;
+	flex-shrink: 0;
+	transform: translateY(0.15em);
+	border: 1.5px solid var(--muted);
+	border-radius: 4px;
+	margin: 0;
+	position: relative;
+}
+
+.task-list-item-checkbox:checked {
+	background: var(--accent);
+	border-color: var(--accent);
+}
+
+.task-list-item-checkbox:checked::after {
+	content: "";
+	position: absolute;
+	inset: 1px 3px 3px;
+	border: solid #fff;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg) scale(0.85);
+}
+
+.task-list-item.is-checked > *:not(.task-list-item-checkbox),
+li[data-task="x"] {
+	color: var(--muted);
+}
+
+/* ==========================================================================
+   Code
+   ========================================================================== */
+
+code {
+	font-family: var(--font-mono);
+	font-size: 0.85em;
+	background: var(--code-bg);
+	padding: 0.15em 0.4em;
+	border-radius: 4px;
+}
+
+pre {
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1em 1.1em;
+	overflow-x: auto;
+	line-height: 1.55;
+	margin: 0 0 1em;
+}
+
+pre code {
+	background: none;
+	padding: 0;
+	font-size: 0.85rem;
+}
+
+/* Prism token colors (Obsidian highlights code with Prism classes). */
+.token.comment, .token.prolog, .token.cdata { color: #8b949e; }
+.token.keyword, .token.tag, .token.important { color: #cf5680; }
+.token.string, .token.char, .token.attr-value { color: #2f8f5b; }
+.token.function, .token.class-name { color: #8250df; }
+.token.number, .token.boolean, .token.constant { color: #0969da; }
+.token.operator, .token.punctuation { color: var(--muted); }
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .token.keyword, :root:not([data-theme="light"]) .token.tag, :root:not([data-theme="light"]) .token.important { color: #ff7b9d; }
+	:root:not([data-theme="light"]) .token.string, :root:not([data-theme="light"]) .token.char, :root:not([data-theme="light"]) .token.attr-value { color: #7ee2a8; }
+	:root:not([data-theme="light"]) .token.function, :root:not([data-theme="light"]) .token.class-name { color: #c9a6ff; }
+	:root:not([data-theme="light"]) .token.number, :root:not([data-theme="light"]) .token.boolean, :root:not([data-theme="light"]) .token.constant { color: #79b8ff; }
+}
+
+:root[data-theme="dark"] .token.keyword, :root[data-theme="dark"] .token.tag, :root[data-theme="dark"] .token.important { color: #ff7b9d; }
+:root[data-theme="dark"] .token.string, :root[data-theme="dark"] .token.char, :root[data-theme="dark"] .token.attr-value { color: #7ee2a8; }
+:root[data-theme="dark"] .token.function, :root[data-theme="dark"] .token.class-name { color: #c9a6ff; }
+:root[data-theme="dark"] .token.number, :root[data-theme="dark"] .token.boolean, :root[data-theme="dark"] .token.constant { color: #79b8ff; }
+
+/* ==========================================================================
+   Quotes, callouts & embeds
+   ========================================================================== */
+
+blockquote {
+	margin: 0 0 1em;
+	padding: 0.1em 0 0.1em 1em;
+	border-left: 0.15em solid var(--accent);
+	font-style: italic;
+	font-weight: 500;
+	color: var(--fg);
+}
+
+/* Callouts: soft tint, thin border in the callout color, no icon —
+   the title alone carries the color. */
+.callout {
+	--callout-rgb: var(--callout-blue);
+	border: 1px solid rgba(var(--callout-rgb), 0.2);
+	background: rgba(var(--callout-rgb), 0.06);
+	border-radius: var(--radius);
+	padding: 1em;
+	margin: 0 0 1em;
+}
+
+.callout[data-callout="abstract"], .callout[data-callout="summary"],
+.callout[data-callout="tldr"] { --callout-rgb: var(--callout-teal); }
+.callout[data-callout="tip"], .callout[data-callout="hint"],
+.callout[data-callout="important"] { --callout-rgb: var(--callout-cyan); }
+.callout[data-callout="success"], .callout[data-callout="check"],
+.callout[data-callout="done"] { --callout-rgb: var(--callout-green); }
+.callout[data-callout="question"], .callout[data-callout="help"],
+.callout[data-callout="faq"] { --callout-rgb: var(--callout-yellow); }
+.callout[data-callout="warning"], .callout[data-callout="caution"],
+.callout[data-callout="attention"] { --callout-rgb: var(--callout-orange); }
+.callout[data-callout="failure"], .callout[data-callout="fail"],
+.callout[data-callout="missing"], .callout[data-callout="danger"],
+.callout[data-callout="error"], .callout[data-callout="bug"] { --callout-rgb: var(--callout-red); }
+.callout[data-callout="example"] { --callout-rgb: var(--callout-purple); }
+.callout[data-callout="quote"], .callout[data-callout="cite"] { --callout-rgb: var(--callout-gray); }
+
+.callout-icon {
+	display: none;
+}
+
+.callout-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0;
+	font-weight: 600;
+	font-size: 1em;
+	line-height: 1;
+	color: rgb(var(--callout-rgb));
+}
+
+.callout-content {
+	padding-top: 0.35em;
+}
+
+.callout-content > :first-child { margin-top: 0; }
+.callout-content > :last-child { margin-bottom: 0; }
+
+/* Note embeds (![[Other note]]) */
+.markdown-embed {
+	border-left: 2px solid var(--border);
+	padding: 0.25rem 0 0.25rem 1rem;
+	margin: 0 0 1em;
+}
+
+/* ==========================================================================
+   Tables — no vertical grid: strong header rule, light row separators
+   ========================================================================== */
+
+/* Tables span the full line width, like --table-width: 100% in the vault. */
+.note-body table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0 0 1em;
+}
+
+/* The renderer wraps each block in a div — wide tables scroll inside theirs
+   instead of shrinking the table to fit. */
+.note-body div:has(> table) {
+	overflow-x: auto;
+}
+
+.note-body th, .note-body td {
+	border: none;
+	border-bottom: 1px solid var(--border);
+	padding: 0.5em 0.85em;
+	text-align: left;
+}
+
+.note-body thead th {
+	border-bottom: 2px solid var(--border);
+	font-weight: 600;
+}
+
+.note-body tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* ==========================================================================
+   Images & media
+   ========================================================================== */
+
+.note-body img, .note-body video {
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--radius);
+}
+
+.note-body audio {
+	width: 100%;
+}
+
+.mermaid svg, .note-body svg {
+	max-width: 100%;
+	height: auto;
+}
+
+/* ==========================================================================
+   Tags, footnotes, misc
+   ========================================================================== */
+
+.tag {
+	display: inline-block;
+	background: rgba(var(--accent-rgb), 0.1);
+	color: var(--accent);
+	border-radius: 999px;
+	padding: 0.05em 0.7em;
+	font-size: 0.85em;
+}
+
+.footnotes {
+	font-size: 0.9em;
+	color: var(--muted);
+}
+
+sup.footnote-ref a, .footnote-backref {
+	text-decoration: none;
+}
+
+/* ==========================================================================
+   Unlock page (passcode-protected notes) & 404
+   ========================================================================== */
+
+.unlock-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+	max-width: 22rem;
+}
+
+.unlock-hint {
+	color: var(--muted);
+	margin: 0;
+}
+
+.unlock-error {
+	color: rgb(var(--callout-red));
+	margin: 0;
+}
+
+.unlock-input,
+.unlock-button {
+	font: inherit;
+	padding: 0.55rem 0.8rem;
+	border-radius: var(--radius);
+	border: 1px solid var(--border);
+}
+
+.unlock-input {
+	background: var(--bg);
+	color: var(--fg);
+	font-family: var(--font-mono);
+}
+
+.unlock-input:focus {
+	outline: 2px solid var(--accent);
+	outline-offset: 1px;
+	border-color: transparent;
+}
+
+.unlock-button {
+	background: var(--accent);
+	color: #fff;
+	border-color: transparent;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.unlock-button:hover {
+	background: var(--accent-hover);
+}
+
+/* ==========================================================================
+   Small screens
+   ========================================================================== */
+
+@media (max-width: 600px) {
+	.note { padding: 2.25rem 1.1rem 4rem; }
+}

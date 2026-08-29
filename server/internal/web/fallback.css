@@ -1,0 +1,34 @@
+/* Outcrop fallback stylesheet — served until a theme is pushed from the plugin. */
+:root {
+  --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280; --accent: #6c5ce7;
+  --code-bg: #f6f8fa; --border: #e5e7eb;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #101014; --fg: #e7e7ea; --muted: #9ca3af; --code-bg: #1b1b22; --border: #26262e; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 17px/1.7 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.note { max-width: 42rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+.note-title { margin: 0 0 .25rem; font-size: 2rem; line-height: 1.25; }
+.note-date { color: var(--muted); font-size: .9rem; }
+.note-header { margin-bottom: 2rem; }
+a { color: var(--accent); }
+img, video { max-width: 100%; height: auto; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+code { background: var(--code-bg); padding: .15em .35em; border-radius: 4px; font-size: .9em; }
+pre code { background: none; padding: 0; }
+blockquote { border-left: 3px solid var(--border); margin-left: 0; padding-left: 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+table { border-collapse: collapse; }
+th, td { border: 1px solid var(--border); padding: .4rem .7rem; }
+.unlock-form { display: flex; flex-direction: column; gap: .75rem; max-width: 22rem; }
+.unlock-hint { color: var(--muted); margin: 0; }
+.unlock-error { color: #dc2626; margin: 0; }
+.unlock-input, .unlock-button {
+  font: inherit; padding: .5rem .75rem; border-radius: 8px; border: 1px solid var(--border);
+}
+.unlock-input { background: var(--bg); color: var(--fg); }
+.unlock-button { background: var(--accent); color: #fff; border-color: transparent; cursor: pointer; }

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · {{.SiteName}}</title>
+<link rel="icon" href="data:,">
+<meta name="robots" content="noindex">
+{{.HeadExtra}}
+<link rel="stylesheet" href="/t/site.css?v={{.ThemeVersion}}">
+<script src="/t/site.js?v={{.ThemeVersion}}"></script>
+</head>
+<body class="outcrop">
+<main class="note unlock">
+<header class="note-header">
+<h1 class="note-title">{{.Title}}</h1>
+</header>
+<form class="unlock-form" method="post" action="/{{.Slug}}/unlock">
+<p class="unlock-hint">This note is protected. Enter the passcode to read it.</p>
+{{if .UnlockError}}<p class="unlock-error">{{.UnlockError}}</p>
+{{end}}<input class="unlock-input" type="password" name="passcode" placeholder="passcode" autofocus autocomplete="off" autocapitalize="off">
+<button class="unlock-button" type="submit">Unlock</button>
+</form>
+</main>
+</body>
+</html>

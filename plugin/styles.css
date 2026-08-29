@@ -1,0 +1,97 @@
+/* Outcrop plugin UI styles (inside Obsidian). */
+
+/* ---- Settings: theme editors ---- */
+.outcrop-theme-setting {
+	display: block;
+}
+
+.outcrop-theme-setting .setting-item-control {
+	width: 100%;
+	margin-top: var(--size-4-2);
+}
+
+.outcrop-theme-textarea {
+	width: 100%;
+	font-family: var(--font-monospace);
+	font-size: var(--font-smaller);
+	resize: vertical;
+}
+
+.outcrop-theme-help {
+	color: var(--text-muted);
+	font-size: var(--font-smaller);
+}
+
+/* ---- Shares view ---- */
+.outcrop-shares {
+	padding: var(--size-4-4);
+	overflow: auto;
+}
+
+.outcrop-shares-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: var(--size-4-4);
+}
+
+.outcrop-shares-header-actions {
+	display: flex;
+	gap: var(--size-4-2);
+	align-items: center;
+}
+
+.outcrop-shares-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.outcrop-shares-table th {
+	text-align: left;
+	color: var(--text-muted);
+	font-weight: var(--font-medium);
+	font-size: var(--font-smaller);
+	padding: var(--size-2-2) var(--size-4-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.outcrop-shares-table td {
+	padding: var(--size-2-3) var(--size-4-2);
+	border-bottom: 1px solid var(--background-modifier-border);
+	vertical-align: middle;
+}
+
+.outcrop-share-title a {
+	color: var(--text-normal);
+}
+
+.outcrop-share-title a:hover {
+	color: var(--text-accent);
+}
+
+.outcrop-orphan-badge {
+	margin-left: var(--size-4-2);
+	font-size: var(--font-smallest);
+	color: var(--text-on-accent);
+	background: var(--color-orange);
+	border-radius: var(--radius-s);
+	padding: 0 var(--size-2-2);
+}
+
+.outcrop-share-actions {
+	white-space: nowrap;
+	text-align: right;
+}
+
+.outcrop-icon-button {
+	background: transparent;
+	box-shadow: none;
+	border: none;
+	padding: var(--size-2-2);
+	cursor: pointer;
+}
+
+/* ---- Status bar ---- */
+.outcrop-status {
+	cursor: pointer;
+}

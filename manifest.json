@@ -1,0 +1,10 @@
+{
+	"id": "outcrop",
+	"name": "Outcrop",
+	"version": "0.1.0",
+	"minAppVersion": "1.5.0",
+	"description": "Share individual notes publicly on your own domain via a self-hosted Outcrop server.",
+	"author": "Sanket Saurav",
+	"authorUrl": "https://sanketsaurav.com",
+	"isDesktopOnly": false
+}

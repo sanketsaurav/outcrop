@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+plugin/main.js
+data/
+.devdata/
+*.db
+*.db-shm
+*.db-wal
+dist/

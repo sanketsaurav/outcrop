@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · {{.SiteName}}</title>
+{{if .Description}}<meta name="description" content="{{.Description}}">
+{{end}}<link rel="canonical" href="{{.URL}}">
+<link rel="icon" href="data:,">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="{{.SiteName}}">
+<meta property="og:title" content="{{.Title}}">
+{{if .Description}}<meta property="og:description" content="{{.Description}}">
+{{end}}<meta property="og:url" content="{{.URL}}">
+<meta property="og:image" content="{{.OGImageURL}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="{{.CreatedISO}}">
+<meta property="article:modified_time" content="{{.UpdatedISO}}">
+<meta name="twitter:card" content="summary_large_image">
+{{if .Noindex}}<meta name="robots" content="noindex">
+{{end}}{{.HeadExtra}}
+<link rel="stylesheet" href="/t/site.css?v={{.ThemeVersion}}">
+<script src="/t/site.js?v={{.ThemeVersion}}"></script>
+{{.JSONLD}}
+</head>
+<body class="outcrop">
+<main class="note">
+<header class="note-header">
+<h1 class="note-title">{{.Title}}</h1>
+<time class="note-date" datetime="{{.UpdatedISO}}">{{.UpdatedHuman}}</time>
+</header>
+<article class="note-body">{{.Body}}</article>
+<footer class="note-footer">
+<table class="note-details">
+<tr>
+<th scope="row">Theme</th>
+<td>
+<div class="theme-switch" aria-label="Color theme">
+<button type="button" class="theme-pill" data-theme-value="light">light</button>
+<button type="button" class="theme-pill" data-theme-value="dark">dark</button>
+<button type="button" class="theme-pill" data-theme-value="system">system</button>
+</div>
+</td>
+</tr>
+<tr>
+<th scope="row">Permalink</th>
+<td><a href="{{.URL}}">{{.URL}}</a></td>
+</tr>
+<tr>
+<th scope="row">Published</th>
+<td><time datetime="{{.CreatedISO}}">{{.CreatedHuman}}</time></td>
+</tr>
+<tr>
+<td></td>
+<td class="powered-by">Powered by <a href="https://github.com/sanketsaurav/outcrop" rel="noopener">Outcrop</a></td>
+</tr>
+</table>
+</footer>
+</main>
+</body>
+</html>
