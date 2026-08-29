@@ -29,13 +29,13 @@ it looks in your vault. Edit the note and the public page updates itself.
 
 ### How it compares
 
-| | Outcrop | Obsidian Publish | Share Note (note.sx) | Digital Garden / Quartz |
-|---|---|---|---|---|
-| Hosting | **your server** | Obsidian's | note.sx | static hosts |
-| Domain | **yours** | theirs (custom = extra) | theirs | yours |
-| Scope | per note | whole vault | per note | whole site |
-| Styling | full CSS/JS | limited | limited | full (via code) |
-| Cost | your server | subscription | free | free |
+| | Outcrop | Share Note (note.sx) | Digital Garden / Quartz |
+|---|---|---|---|
+| Hosting | **your server** | note.sx | static hosts |
+| Domain | **yours** | theirs | yours |
+| Scope | per note | per note | whole site |
+| Styling | full CSS/JS | limited | full (via code) |
+| Cost | your server | free | free |
 
 Outcrop is for *"I want to hand someone a link to this one note, on my
 domain, and keep control of it."* If you want to publish a whole
