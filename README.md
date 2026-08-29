@@ -165,8 +165,8 @@ Three editable pieces in the plugin's settings, served on every public page:
 
 Edit → **Push theme to server** → every shared note restyles. For full
 control of the page structure, drop a `template.html` into the server's data
-folder — the built-in template's contract is documented in
-[SPEC.md](SPEC.md).
+folder — start from the built-in one at
+`server/internal/web/templates/page.html`.
 
 ## SEO & sharing previews
 
@@ -235,8 +235,7 @@ best-effort. Everything else you see in reading view is what visitors get.
 ## Contributing
 
 Bug reports and PRs welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers the
-dev setup, tests, and release process; [SPEC.md](SPEC.md) documents the
-architecture and API.
+dev setup, tests, and release process.
 
 ## License
 

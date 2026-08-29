@@ -1,7 +1,7 @@
 # Contributing to Outcrop
 
-Thanks for helping out. This file covers the development setup and the
-release process; the architecture and API contract live in [SPEC.md](SPEC.md).
+Thanks for helping out. This file covers the development setup, tests, and
+the release process.
 
 ## Repo layout
 
@@ -49,8 +49,8 @@ Two invariants worth knowing before touching routes or themes:
 - The API and web routers share one mux — `compose_test.go` exists because
   overlapping ServeMux patterns panic at startup.
 - The page template's structure (`.note`, `.note-body`, `.note-details`, …)
-  is a documented contract that user themes target — breaking it breaks
-  everyone's CSS. See SPEC.md §6.4.
+  is a contract that user themes target — breaking it breaks everyone's CSS.
+  The template lives at `server/internal/web/templates/page.html`.
 
 ## Releasing
 
