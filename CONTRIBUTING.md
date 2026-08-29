@@ -75,7 +75,10 @@ git push origin main --tags
 
 ## Obsidian community directory
 
-One-time, after the first release: PR an entry to
-[obsidianmd/obsidian-releases](https://github.com/obsidianmd/obsidian-releases)
-`community-plugins.json` (`id: outcrop`, `repo: sanketsaurav/outcrop`).
-Reviews take a few weeks; BRAT installs work in the meantime.
+One-time, after the first release: submit through the
+[Obsidian Community directory](https://community.obsidian.md) — sign in with
+an Obsidian account, link the GitHub account that owns this repo, and add the
+plugin. The directory reads `manifest.json` from the default branch and
+installs from the release whose tag matches it; automated review feedback
+shows up in the directory and is addressed by shipping a new release. BRAT
+installs work in the meantime.

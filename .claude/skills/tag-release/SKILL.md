@@ -162,5 +162,6 @@ Report the release URL when done.
   default to private. The user must set the `outcrop` package to public
   (GitHub → Packages → outcrop → settings) — one-time.
 - **First plugin release**: versions are already correct in the repo — skip
-  the bump and just tag. Submitting to the Obsidian community directory is a
-  separate, one-time process documented in README.md.
+  the bump and just tag. Submitting to the Obsidian community directory
+  (community.obsidian.md, requires the owner's Obsidian account) is a
+  separate, one-time process documented in CONTRIBUTING.md.
