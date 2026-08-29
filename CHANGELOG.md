@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2 (2026-08-29)
+
+### Fixes
+
+- A command callback's promise was left unhandled after the 0.1.1 typing
+  changes.
+- Default theme: body-link underlines are now drawn with borders instead of
+  `text-decoration` longhands — same look, cleaner lint.
+
 ## 0.1.1 (2026-08-29)
 
 Addresses the community directory's automated review.

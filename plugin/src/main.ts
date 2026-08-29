@@ -400,7 +400,7 @@ export default class OutcropPlugin extends Plugin {
 		return (checking: boolean) => {
 			const file = this.app.workspace.getActiveFile();
 			if (!file || file.extension !== "md" || !check(file)) return false;
-			if (!checking) action(file);
+			if (!checking) void action(file);
 			return true;
 		};
 	}

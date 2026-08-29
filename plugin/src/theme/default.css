@@ -270,13 +270,12 @@ strong, b {
 	font-weight: var(--bold-weight);
 }
 
-/* Links read as normal text with a thin muted underline; accent on hover. */
+/* Links read as normal text with a thin muted underline (drawn as a
+   border-bottom, which also gives the slight offset from the baseline). */
 .note-body a {
 	color: inherit;
-	text-decoration: underline;
-	text-decoration-thickness: 0.8px;
-	text-decoration-color: var(--muted);
-	text-underline-offset: 0.18em;
+	text-decoration: none;
+	border-bottom: 1px solid var(--muted);
 	transition: opacity 120ms ease;
 }
 
@@ -310,6 +309,7 @@ hr {
 	opacity: 0;
 	font-weight: 400;
 	text-decoration: none;
+	border-bottom: none;
 }
 
 h1:hover .heading-anchor, h2:hover .heading-anchor, h3:hover .heading-anchor,
