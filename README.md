@@ -186,19 +186,43 @@ never in the sitemap.
 ## Development
 
 ```bash
-make test        # server: vet + tests · plugin: typecheck + build
+make hooks       # one-time: enable pre-commit hooks (gofmt/vet + prettier/eslint on staged files)
+make test        # server: gofmt check, vet, tests · plugin: unit tests, lint, typecheck, build
 make server-dev  # run the server on :8080 with throwaway config
 make plugin-dev  # rebuild plugin on change (symlink the repo into a test vault)
 make docker      # build the image locally
 ```
 
 Layout: `server/` (Go 1.24+, stdlib + modernc sqlite + x/image only),
-`plugin/` (TypeScript, esbuild, no runtime deps), `manifest.json` at the root
-(Obsidian convention).
+`plugin/` (TypeScript, esbuild, no runtime deps; vitest for unit tests,
+prettier + eslint for style), `manifest.json` at the root (Obsidian
+convention). CI runs the same checks on every push/PR.
 
-Releases: plugin = bare semver tag matching `manifest.json` (`0.1.0`) →
-GitHub release with plugin files; server = `server-v0.1.0` → multi-arch image
-on GHCR.
+### Releasing
+
+Both artifacts release from tags, fully automated by GitHub Actions:
+
+```bash
+make release-plugin V=0.1.1   # bumps manifest.json/versions.json/package.json, commits, tags 0.1.1
+make release-server V=0.1.1   # tags server-v0.1.1
+git push origin main --tags   # workflows create the GitHub release + GHCR image
+```
+
+Plugin tags are bare semver matching `manifest.json` (the Obsidian
+community/BRAT requirement); the workflow refuses a tag that doesn't match.
+The release carries `manifest.json`, `main.js`, `styles.css` as assets.
+Server tags produce `ghcr.io/sanketsaurav/outcrop:{version,latest}` for
+amd64 + arm64.
+
+### Publishing to the Obsidian community directory
+
+1. Ship at least one plugin release (bare semver tag, per above).
+2. Fork [obsidianmd/obsidian-releases](https://github.com/obsidianmd/obsidian-releases)
+   and add an entry to `community-plugins.json`:
+   `{"id": "outcrop", "name": "Outcrop", "author": "Sanket Saurav", "description": …, "repo": "sanketsaurav/outcrop"}`.
+3. Open the PR using their template and work through the automated validation
+   plus human review (this can take a few weeks). Until it's merged, BRAT
+   installs work from the releases directly.
 
 ## License
 

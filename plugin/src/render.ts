@@ -1,5 +1,6 @@
 import { Component, MarkdownRenderer, TFile } from "obsidian";
 import type OutcropPlugin from "./main";
+import { clamp, dedupeSlug, headingSlug } from "./text";
 
 export interface AssetUpload {
 	hash: string;
@@ -66,14 +67,14 @@ async function transform(
 	plugin: OutcropPlugin,
 	root: HTMLElement,
 	file: TFile,
-	assets: Map<string, AssetUpload>
+	assets: Map<string, AssetUpload>,
 ) {
 	// 1. Obsidian editing chrome that has no business on a public page.
 	root
 		.querySelectorAll(
 			".copy-code-button, .edit-block-button, .collapse-indicator, .heading-collapse-indicator, " +
 				".frontmatter, .mod-frontmatter, .frontmatter-container, .metadata-container, " +
-				".markdown-embed-link, .markdown-embed-copy, .internal-embed > .file-embed-title"
+				".markdown-embed-link, .markdown-embed-copy, .internal-embed > .file-embed-title",
 		)
 		.forEach((el) => el.remove());
 
@@ -128,14 +129,17 @@ async function processEmbed(
 	plugin: OutcropPlugin,
 	embed: HTMLElement,
 	sourceFile: TFile,
-	assets: Map<string, AssetUpload>
+	assets: Map<string, AssetUpload>,
 ) {
 	// Note embeds (![[Other note]]) are already rendered inline — keep the content.
 	if (embed.classList.contains("markdown-embed")) return;
 
 	const linkText = embed.getAttribute("src");
 	if (!linkText) return;
-	const target = plugin.app.metadataCache.getFirstLinkpathDest(linkText.split("#")[0], sourceFile.path);
+	const target = plugin.app.metadataCache.getFirstLinkpathDest(
+		linkText.split("#")[0],
+		sourceFile.path,
+	);
 	if (!target) {
 		embed.replaceWith(createSpan({ text: embed.textContent ?? linkText }));
 		return;
@@ -211,7 +215,7 @@ function noteTitle(
 	plugin: OutcropPlugin,
 	file: TFile,
 	fm: Record<string, unknown>,
-	root: HTMLElement
+	root: HTMLElement,
 ): string {
 	const explicit = fm[plugin.props.title] ?? fm["title"];
 	if (typeof explicit === "string" && explicit.trim()) return explicit.trim();
@@ -225,7 +229,7 @@ function noteTitle(
 function noteDescription(
 	fm: Record<string, unknown>,
 	plugin: OutcropPlugin,
-	root: HTMLElement
+	root: HTMLElement,
 ): string {
 	const explicit = fm[plugin.props.description] ?? fm["description"];
 	if (typeof explicit === "string" && explicit.trim()) return clamp(explicit.trim());
@@ -234,25 +238,6 @@ function noteDescription(
 		if (text) return clamp(text);
 	}
 	return "";
-}
-
-function clamp(s: string, max = 200): string {
-	return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + "…";
-}
-
-export function headingSlug(text: string): string {
-	return text
-		.toLowerCase()
-		.trim()
-		.replace(/[^\p{L}\p{N}\s-]/gu, "")
-		.replace(/\s+/g, "-");
-}
-
-function dedupeSlug(slug: string, used: Map<string, number>): string {
-	if (!slug) return slug;
-	const n = used.get(slug) ?? 0;
-	used.set(slug, n + 1);
-	return n === 0 ? slug : `${slug}-${n}`;
 }
 
 export async function sha256Hex(data: ArrayBuffer): Promise<string> {

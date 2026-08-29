@@ -14,7 +14,7 @@ export interface ShareOptions {
 export async function shareNote(
 	plugin: OutcropPlugin,
 	file: TFile,
-	opts: ShareOptions = {}
+	opts: ShareOptions = {},
 ): Promise<NoteResponse | null> {
 	if (!plugin.client.configured()) {
 		new Notice("Outcrop: set the server URL and API key in settings first.");
@@ -116,7 +116,7 @@ export async function shareNote(
 async function createNote(
 	plugin: OutcropPlugin,
 	payload: NotePayload,
-	wantSlug: string | undefined
+	wantSlug: string | undefined,
 ): Promise<NoteResponse> {
 	if (wantSlug) {
 		try {
@@ -245,7 +245,7 @@ export async function updateAllShared(plugin: OutcropPlugin): Promise<void> {
 	new Notice(
 		failed === 0
 			? `Outcrop: updated ${done} shared note(s).`
-			: `Outcrop: updated ${done - failed}/${done}; ${failed} failed (see console).`
+			: `Outcrop: updated ${done - failed}/${done}; ${failed} failed (see console).`,
 	);
 }
 

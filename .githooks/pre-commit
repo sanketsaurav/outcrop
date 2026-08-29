@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Outcrop pre-commit: format staged files in place (and re-stage them), then lint.
+# Enable with:  make hooks   (runs: git config core.hooksPath .githooks)
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+staged() {
+	git diff --cached --name-only --diff-filter=ACM | grep -E "$1" || true
+}
+
+# ---- Go: gofmt + vet ----
+go_files=$(staged '^server/.*\.go$')
+if [ -n "$go_files" ]; then
+	gofmt -w $go_files
+	git add $go_files
+	(cd server && go vet ./...)
+fi
+
+# ---- Plugin: prettier + eslint ----
+ts_files=$(staged '^plugin/.*\.(ts|mts|mjs)$')
+if [ -n "$ts_files" ]; then
+	if [ ! -d plugin/node_modules ]; then
+		echo "pre-commit: plugin/node_modules missing — run: cd plugin && npm install" >&2
+		exit 1
+	fi
+	rel_files=$(echo "$ts_files" | sed 's|^plugin/||')
+	(cd plugin && npx prettier --write $rel_files && npx eslint $rel_files)
+	git add $ts_files
+fi
+
+exit 0

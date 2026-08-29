@@ -1,4 +1,4 @@
-import { ItemView, Notice, TFile, WorkspaceLeaf, setIcon } from "obsidian";
+import { ItemView, Notice, WorkspaceLeaf, setIcon } from "obsidian";
 import { NoteResponse } from "./api";
 import type OutcropPlugin from "./main";
 import { rotateNote, shareNote, unshareNote, updateAllShared } from "./publish";
@@ -7,7 +7,10 @@ import { ConfirmModal } from "./ui";
 export const VIEW_TYPE_SHARES = "outcrop-shares";
 
 export class SharesView extends ItemView {
-	constructor(leaf: WorkspaceLeaf, private plugin: OutcropPlugin) {
+	constructor(
+		leaf: WorkspaceLeaf,
+		private plugin: OutcropPlugin,
+	) {
 		super(leaf);
 	}
 
@@ -41,13 +44,17 @@ export class SharesView extends ItemView {
 		try {
 			notes = await this.plugin.client.listNotes();
 		} catch (e) {
-			el.createEl("p", { text: `Couldn't reach the server: ${e instanceof Error ? e.message : e}` });
+			el.createEl("p", {
+				text: `Couldn't reach the server: ${e instanceof Error ? e.message : e}`,
+			});
 			return;
 		}
 		const index = this.plugin.sharedFileIndex();
 
 		const header = el.createDiv({ cls: "outcrop-shares-header" });
-		header.createEl("strong", { text: `${notes.length} shared note${notes.length === 1 ? "" : "s"}` });
+		header.createEl("strong", {
+			text: `${notes.length} shared note${notes.length === 1 ? "" : "s"}`,
+		});
 		const actions = header.createDiv({ cls: "outcrop-shares-header-actions" });
 		this.iconButton(actions, "refresh-cw", "Refresh", () => this.refresh());
 		const updateAllBtn = actions.createEl("button", { text: "Update all" });
@@ -57,7 +64,9 @@ export class SharesView extends ItemView {
 		};
 
 		if (notes.length === 0) {
-			el.createEl("p", { text: "Nothing shared yet. Run “Outcrop: Share current note” on any note." });
+			el.createEl("p", {
+				text: "Nothing shared yet. Run “Outcrop: Share current note” on any note.",
+			});
 			return;
 		}
 
@@ -81,10 +90,9 @@ export class SharesView extends ItemView {
 				};
 			} else {
 				titleTd.setText(note.title);
-				titleTd.createSpan({ cls: "outcrop-orphan-badge", text: "orphan" }).setAttr(
-					"aria-label",
-					"On the server but not found in this vault"
-				);
+				titleTd
+					.createSpan({ cls: "outcrop-orphan-badge", text: "orphan" })
+					.setAttr("aria-label", "On the server but not found in this vault");
 			}
 			if (note.protected) {
 				titleTd.createSpan({ cls: "outcrop-lock", text: " 🔒" });
@@ -125,7 +133,7 @@ export class SharesView extends ItemView {
 						async () => {
 							await rotateNote(this.plugin, file);
 							await this.refresh();
-						}
+						},
 					).open();
 				});
 			}
@@ -146,7 +154,7 @@ export class SharesView extends ItemView {
 							}
 						}
 						await this.refresh();
-					}
+					},
 				).open();
 			});
 		}

@@ -8,11 +8,7 @@ import {
 	unshareNote,
 	updateAllShared,
 } from "./publish";
-import {
-	DEFAULT_SETTINGS,
-	OutcropSettingTab,
-	OutcropSettings,
-} from "./settings";
+import { DEFAULT_SETTINGS, OutcropSettingTab, OutcropSettings } from "./settings";
 import { SharesView, VIEW_TYPE_SHARES } from "./shares-view";
 import { ConfirmModal } from "./ui";
 
@@ -58,7 +54,10 @@ export default class OutcropPlugin extends Plugin {
 		this.addCommand({
 			id: "share-note",
 			name: "Share current note (create or update)",
-			checkCallback: this.mdCommand(() => true, (file) => void shareNote(this, file)),
+			checkCallback: this.mdCommand(
+				() => true,
+				(file) => void shareNote(this, file),
+			),
 		});
 		this.addCommand({
 			id: "copy-link",
@@ -68,7 +67,7 @@ export default class OutcropPlugin extends Plugin {
 				async (file) => {
 					await navigator.clipboard.writeText(this.getShareUrl(file)!);
 					new Notice("Outcrop: link copied.");
-				}
+				},
 			),
 		});
 		this.addCommand({
@@ -79,7 +78,7 @@ export default class OutcropPlugin extends Plugin {
 				async (file) => {
 					await navigator.clipboard.writeText(this.getPasscode(file)!);
 					new Notice("Outcrop: passcode copied.");
-				}
+				},
 			),
 		});
 		this.addCommand({
@@ -87,7 +86,7 @@ export default class OutcropPlugin extends Plugin {
 			name: "Unshare current note",
 			checkCallback: this.mdCommand(
 				(file) => Boolean(this.getShareId(file)),
-				(file) => this.confirmUnshare(file)
+				(file) => this.confirmUnshare(file),
 			),
 		});
 		this.addCommand({
@@ -95,20 +94,23 @@ export default class OutcropPlugin extends Plugin {
 			name: "Rotate share link (revoke the old one)",
 			checkCallback: this.mdCommand(
 				(file) => Boolean(this.getShareId(file)),
-				(file) => this.confirmRotate(file)
+				(file) => this.confirmRotate(file),
 			),
 		});
 		this.addCommand({
 			id: "protect-note",
 			name: "Protect note with a passcode",
-			checkCallback: this.mdCommand(() => true, (file) => void protectNote(this, file)),
+			checkCallback: this.mdCommand(
+				() => true,
+				(file) => void protectNote(this, file),
+			),
 		});
 		this.addCommand({
 			id: "remove-passcode",
 			name: "Remove passcode",
 			checkCallback: this.mdCommand(
 				(file) => Boolean(this.getShareId(file)),
-				(file) => void removePasscode(this, file)
+				(file) => void removePasscode(this, file),
 			),
 		});
 		this.addCommand({
@@ -130,7 +132,8 @@ export default class OutcropPlugin extends Plugin {
 		// ---- Auto-update on save ----
 		this.registerEvent(
 			this.app.vault.on("modify", (file) => {
-				if (!this.settings.autoUpdate || !(file instanceof TFile) || file.extension !== "md") return;
+				if (!this.settings.autoUpdate || !(file instanceof TFile) || file.extension !== "md")
+					return;
 				if (!this.getShareId(file)) return;
 				const key = file.path;
 				window.clearTimeout(this.updateTimers.get(key));
@@ -142,9 +145,9 @@ export default class OutcropPlugin extends Plugin {
 						if (f && this.getShareId(f)) {
 							void shareNote(this, f, { silent: true, ripple: false });
 						}
-					}, this.settings.autoUpdateDebounceSec * 1000)
+					}, this.settings.autoUpdateDebounceSec * 1000),
 				);
-			})
+			}),
 		);
 
 		// ---- File context menu ----
@@ -157,7 +160,7 @@ export default class OutcropPlugin extends Plugin {
 						.setSection("outcrop")
 						.setTitle(shared ? "Outcrop: Update shared note" : "Outcrop: Share note")
 						.setIcon("share-2")
-						.onClick(() => void shareNote(this, file))
+						.onClick(() => void shareNote(this, file)),
 				);
 				if (!shared) return;
 				const passcode = this.getPasscode(file);
@@ -169,7 +172,7 @@ export default class OutcropPlugin extends Plugin {
 						.onClick(async () => {
 							await navigator.clipboard.writeText(this.getShareUrl(file)!);
 							new Notice("Outcrop: link copied.");
-						})
+						}),
 				);
 				if (passcode) {
 					menu.addItem((i) =>
@@ -180,7 +183,7 @@ export default class OutcropPlugin extends Plugin {
 							.onClick(async () => {
 								await navigator.clipboard.writeText(passcode);
 								new Notice("Outcrop: passcode copied.");
-							})
+							}),
 					);
 				}
 				menu.addItem((i) =>
@@ -189,24 +192,24 @@ export default class OutcropPlugin extends Plugin {
 						.setTitle(passcode ? "Outcrop: Remove passcode" : "Outcrop: Protect with passcode")
 						.setIcon(passcode ? "lock-open" : "lock")
 						.onClick(() =>
-							passcode ? void removePasscode(this, file) : void protectNote(this, file)
-						)
+							passcode ? void removePasscode(this, file) : void protectNote(this, file),
+						),
 				);
 				menu.addItem((i) =>
 					i
 						.setSection("outcrop")
 						.setTitle("Outcrop: Rotate link…")
 						.setIcon("rotate-cw")
-						.onClick(() => this.confirmRotate(file))
+						.onClick(() => this.confirmRotate(file)),
 				);
 				menu.addItem((i) =>
 					i
 						.setSection("outcrop")
 						.setTitle("Outcrop: Unshare…")
 						.setIcon("trash-2")
-						.onClick(() => this.confirmUnshare(file))
+						.onClick(() => this.confirmUnshare(file)),
 				);
-			})
+			}),
 		);
 
 		// ---- Status bar failsafe (desktop) ----
@@ -218,7 +221,7 @@ export default class OutcropPlugin extends Plugin {
 		this.registerEvent(
 			this.app.metadataCache.on("changed", (file) => {
 				if (file.path === this.app.workspace.getActiveFile()?.path) this.refreshStatusBar();
-			})
+			}),
 		);
 		this.refreshStatusBar();
 	}
@@ -316,7 +319,10 @@ export default class OutcropPlugin extends Plugin {
 		if (!file || !this.getShareId(file)) return;
 		const menu = new Menu();
 		menu.addItem((i) =>
-			i.setTitle("Update now").setIcon("upload").onClick(() => void shareNote(this, file))
+			i
+				.setTitle("Update now")
+				.setIcon("upload")
+				.onClick(() => void shareNote(this, file)),
 		);
 		const passcode = this.getPasscode(file);
 		menu.addItem((i) =>
@@ -326,7 +332,7 @@ export default class OutcropPlugin extends Plugin {
 				.onClick(async () => {
 					await navigator.clipboard.writeText(this.getShareUrl(file)!);
 					new Notice("Outcrop: link copied.");
-				})
+				}),
 		);
 		if (passcode) {
 			menu.addItem((i) =>
@@ -336,29 +342,33 @@ export default class OutcropPlugin extends Plugin {
 					.onClick(async () => {
 						await navigator.clipboard.writeText(passcode);
 						new Notice("Outcrop: passcode copied.");
-					})
+					}),
 			);
 		}
 		menu.addItem((i) =>
 			i
 				.setTitle("Open in browser")
 				.setIcon("external-link")
-				.onClick(() => window.open(this.getShareUrl(file)!, "_blank"))
+				.onClick(() => window.open(this.getShareUrl(file)!, "_blank")),
 		);
 		menu.addSeparator();
 		menu.addItem((i) =>
 			i
 				.setTitle(passcode ? "Remove passcode" : "Protect with passcode")
 				.setIcon(passcode ? "lock-open" : "lock")
-				.onClick(() =>
-					passcode ? void removePasscode(this, file) : void protectNote(this, file)
-				)
+				.onClick(() => (passcode ? void removePasscode(this, file) : void protectNote(this, file))),
 		);
 		menu.addItem((i) =>
-			i.setTitle("Rotate link…").setIcon("rotate-cw").onClick(() => this.confirmRotate(file))
+			i
+				.setTitle("Rotate link…")
+				.setIcon("rotate-cw")
+				.onClick(() => this.confirmRotate(file)),
 		);
 		menu.addItem((i) =>
-			i.setTitle("Unshare…").setIcon("trash-2").onClick(() => this.confirmUnshare(file))
+			i
+				.setTitle("Unshare…")
+				.setIcon("trash-2")
+				.onClick(() => this.confirmUnshare(file)),
 		);
 		menu.showAtMouseEvent(evt);
 	}
@@ -369,7 +379,7 @@ export default class OutcropPlugin extends Plugin {
 			"Rotate share link",
 			"This note gets a new URL and the current link stops working — anyone holding the old link loses access. Continue?",
 			"Rotate",
-			() => void rotateNote(this, file)
+			() => void rotateNote(this, file),
 		).open();
 	}
 
@@ -379,13 +389,13 @@ export default class OutcropPlugin extends Plugin {
 			"Unshare note",
 			"The public link stops working immediately. The note stays in your vault. Continue?",
 			"Unshare",
-			() => void unshareNote(this, file)
+			() => void unshareNote(this, file),
 		).open();
 	}
 
 	private mdCommand(
 		check: (file: TFile) => boolean,
-		action: (file: TFile) => void
+		action: (file: TFile) => void,
 	): (checking: boolean) => boolean {
 		return (checking: boolean) => {
 			const file = this.app.workspace.getActiveFile();

@@ -29,7 +29,10 @@ export interface NotePayload {
 }
 
 export class ApiError extends Error {
-	constructor(public status: number, message: string) {
+	constructor(
+		public status: number,
+		message: string,
+	) {
 		super(message);
 	}
 }
@@ -51,7 +54,7 @@ export class OutcropClient {
 		method: string,
 		path: string,
 		body?: object | ArrayBuffer,
-		contentType?: string
+		contentType?: string,
 	) {
 		const isBinary = body instanceof ArrayBuffer;
 		const resp = await requestUrl({
@@ -59,7 +62,8 @@ export class OutcropClient {
 			method,
 			throw: false,
 			headers: { Authorization: `Bearer ${this.settings.apiKey}` },
-			contentType: contentType ?? (body !== undefined && !isBinary ? "application/json" : undefined),
+			contentType:
+				contentType ?? (body !== undefined && !isBinary ? "application/json" : undefined),
 			body: isBinary ? body : body !== undefined ? JSON.stringify(body) : undefined,
 		});
 		if (resp.status >= 400) {
@@ -119,7 +123,12 @@ export class OutcropClient {
 	}
 
 	async uploadAsset(hash: string, ext: string, data: ArrayBuffer): Promise<void> {
-		await this.req("POST", `/api/v1/assets/${hash}?ext=${encodeURIComponent(ext)}`, data, "application/octet-stream");
+		await this.req(
+			"POST",
+			`/api/v1/assets/${hash}?ext=${encodeURIComponent(ext)}`,
+			data,
+			"application/octet-stream",
+		);
 	}
 
 	async getTheme(): Promise<{ css: string; js: string; head: string; updated_at: number }> {
