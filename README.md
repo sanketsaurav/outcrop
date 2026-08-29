@@ -8,11 +8,6 @@
 Obsidian and the note is live at `https://notes.yourdomain.com/…` — exactly as
 it looks in your vault. Edit the note and the public page updates itself.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
-  <img alt="A shared note rendered by Outcrop" src="docs/screenshot-light.png" width="800">
-</picture>
-
 ## Why Outcrop
 
 - **Your domain, your server, your data.** A single small Docker container
