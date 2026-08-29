@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, SettingDefinitionItem } from "obsidian";
 import type OutcropPlugin from "./main";
 import { TypedConfirmModal } from "./ui";
 import { unshareAll } from "./publish";
@@ -56,6 +56,107 @@ export class OutcropSettingTab extends PluginSettingTab {
 		private plugin: OutcropPlugin,
 	) {
 		super(app, plugin);
+	}
+
+	// Declarative definitions (Obsidian 1.13+) feed the settings search;
+	// rendering stays with display() below so older Obsidian versions work.
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		const { plugin } = this;
+		return [
+			{
+				type: "group",
+				heading: "Server",
+				items: [
+					{
+						name: "Server URL",
+						desc: "Where your Outcrop server lives.",
+						control: { type: "text", key: "serverUrl" },
+					},
+					{
+						name: "API key",
+						desc: "The API_KEY configured on your server.",
+						control: { type: "text", key: "apiKey" },
+					},
+				],
+			},
+			{
+				type: "group",
+				heading: "Sharing",
+				items: [
+					{ name: "Update shared notes on save", control: { type: "toggle", key: "autoUpdate" } },
+					{
+						name: "Auto-update debounce (seconds)",
+						control: { type: "number", key: "autoUpdateDebounceSec" },
+					},
+					{
+						name: "Refresh linked notes",
+						aliases: ["ripple"],
+						control: { type: "toggle", key: "linkRipple" },
+					},
+					{
+						name: "Links to unshared notes",
+						control: {
+							type: "dropdown",
+							key: "unsharedLinkBehavior",
+							options: { unwrap: "Show as plain text", span: "Show as styled non-link" },
+						},
+					},
+					{
+						name: "Title source",
+						control: {
+							type: "dropdown",
+							key: "titleSource",
+							options: { filename: "File name", h1: "First heading, then file name" },
+						},
+					},
+					{ name: "Copy link when sharing", control: { type: "toggle", key: "copyOnShare" } },
+					{
+						name: "Keep new shares out of search engines",
+						aliases: ["noindex"],
+						control: { type: "toggle", key: "defaultNoindex" },
+					},
+					{ name: "Render delay (ms)", control: { type: "number", key: "renderDelayMs" } },
+					{ name: "Frontmatter prefix", control: { type: "text", key: "fmPrefix" } },
+				],
+			},
+			{
+				type: "group",
+				heading: "Theme",
+				items: [
+					{
+						name: "Site CSS",
+						aliases: ["theme", "style"],
+						control: { type: "textarea", key: "themeCss" },
+					},
+					{ name: "Site JS", aliases: ["theme"], control: { type: "textarea", key: "themeJs" } },
+					{
+						name: "Head snippet",
+						aliases: ["fonts", "google fonts"],
+						control: { type: "textarea", key: "themeHead" },
+					},
+					{ name: "Push theme to server", action: () => void plugin.pushTheme() },
+				],
+			},
+		];
+	}
+
+	getControlValue(key: string): unknown {
+		const s = this.plugin.settings;
+		if (key === "themeCss") return s.theme.css;
+		if (key === "themeJs") return s.theme.js;
+		if (key === "themeHead") return s.theme.head;
+		return s[key as keyof OutcropSettings];
+	}
+
+	async setControlValue(key: string, value: unknown): Promise<void> {
+		const s = this.plugin.settings;
+		if (key === "themeCss" || key === "themeJs" || key === "themeHead") {
+			s.theme[key === "themeCss" ? "css" : key === "themeJs" ? "js" : "head"] = String(value);
+			s.themeDirty = true;
+		} else {
+			(s as unknown as Record<string, unknown>)[key] = value;
+		}
+		await this.plugin.saveSettings();
 	}
 
 	display(): void {

@@ -7,7 +7,7 @@ export class ConfirmModal extends Modal {
 		private heading: string,
 		private body: string,
 		private cta: string,
-		private onConfirm: () => void,
+		private onConfirm: () => void | Promise<void>,
 	) {
 		super(app);
 	}
@@ -23,7 +23,7 @@ export class ConfirmModal extends Modal {
 					.setButtonText(this.cta)
 					.onClick(() => {
 						this.close();
-						this.onConfirm();
+						void this.onConfirm();
 					}),
 			);
 	}
@@ -41,7 +41,7 @@ export class TypedConfirmModal extends Modal {
 		private body: string,
 		private phrase: string,
 		private cta: string,
-		private onConfirm: () => void,
+		private onConfirm: () => void | Promise<void>,
 	) {
 		super(app);
 	}
@@ -65,7 +65,7 @@ export class TypedConfirmModal extends Modal {
 					.onClick(() => {
 						if (typed !== this.phrase) return;
 						this.close();
-						this.onConfirm();
+						void this.onConfirm();
 					});
 				confirmBtn = b.buttonEl;
 				confirmBtn.disabled = true;

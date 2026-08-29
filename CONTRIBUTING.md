@@ -80,5 +80,4 @@ One-time, after the first release: submit through the
 an Obsidian account, link the GitHub account that owns this repo, and add the
 plugin. The directory reads `manifest.json` from the default branch and
 installs from the release whose tag matches it; automated review feedback
-shows up in the directory and is addressed by shipping a new release. BRAT
-installs work in the meantime.
+shows up in the directory and is addressed by shipping a new release.

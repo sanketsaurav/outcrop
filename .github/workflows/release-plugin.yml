@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   release:
@@ -23,6 +25,13 @@ jobs:
         run: |
           npm ci
           npm run build
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            plugin/main.js
+            plugin/styles.css
+            manifest.json
       - name: Check tag matches manifest version
         run: |
           tag="${GITHUB_REF#refs/tags/}"

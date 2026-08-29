@@ -41,6 +41,9 @@
 	--callout-purple: 120, 82, 238;
 	--callout-gray: 120, 122, 132;
 
+	/* Lucide arrow-up-right, stroke matched to --muted per palette. */
+	--icon-external: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 14 14' fill='none' stroke='%236e6e6e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='7' y1='17' x2='17' y2='7'/%3E%3Cpolyline points='7 7 17 7 17 17'/%3E%3C/svg%3E");
+
 	color-scheme: light;
 }
 
@@ -59,6 +62,7 @@
 		--code-bg: #272727;
 		--border: #333333;
 		--mark-bg: #4a4413;
+		--icon-external: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 14 14' fill='none' stroke='%239a9a9a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='7' y1='17' x2='17' y2='7'/%3E%3Cpolyline points='7 7 17 7 17 17'/%3E%3C/svg%3E");
 		color-scheme: dark;
 	}
 }
@@ -73,6 +77,7 @@
 	--code-bg: #272727;
 	--border: #333333;
 	--mark-bg: #4a4413;
+	--icon-external: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 14 14' fill='none' stroke='%239a9a9a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='7' y1='17' x2='17' y2='7'/%3E%3Cpolyline points='7 7 17 7 17 17'/%3E%3C/svg%3E");
 	color-scheme: dark;
 }
 
@@ -164,9 +169,7 @@ body {
 	width: 0.7em;
 	height: 0.7em;
 	margin-left: 0.25em;
-	background-color: currentColor;
-	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 14 14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='7' y1='17' x2='17' y2='7'/%3E%3Cpolyline points='7 7 17 7 17 17'/%3E%3C/svg%3E") no-repeat center / contain;
-	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 14 14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='7' y1='17' x2='17' y2='7'/%3E%3Cpolyline points='7 7 17 7 17 17'/%3E%3C/svg%3E") no-repeat center / contain;
+	background: var(--icon-external) no-repeat center / contain;
 }
 
 .note-details {
@@ -301,11 +304,12 @@ hr {
 }
 
 /* Heading anchor links added by site.js */
-.heading-anchor {
+/* Extra specificity so this beats .note-body a's underline without !important. */
+.note-body a.heading-anchor {
 	margin-left: 0.35em;
 	opacity: 0;
 	font-weight: 400;
-	text-decoration: none !important;
+	text-decoration: none;
 }
 
 h1:hover .heading-anchor, h2:hover .heading-anchor, h3:hover .heading-anchor,
@@ -500,9 +504,9 @@ blockquote {
 	margin: 0 0 1em;
 }
 
-/* The renderer wraps each block in a div — wide tables scroll inside theirs
-   instead of shrinking the table to fit. */
-.note-body div:has(> table) {
+/* The plugin wraps each table in a .table-wrap — wide tables scroll inside
+   it instead of shrinking the table to fit or breaking the page. */
+.note-body .table-wrap {
 	overflow-x: auto;
 }
 

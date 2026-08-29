@@ -160,7 +160,12 @@ export class SharesView extends ItemView {
 		}
 	}
 
-	private iconButton(parent: HTMLElement, icon: string, label: string, onClick: () => void) {
+	private iconButton(
+		parent: HTMLElement,
+		icon: string,
+		label: string,
+		onClick: () => void | Promise<void>,
+	) {
 		const btn = parent.createEl("button", { cls: "outcrop-icon-button clickable-icon" });
 		setIcon(btn, icon);
 		btn.setAttr("aria-label", label);

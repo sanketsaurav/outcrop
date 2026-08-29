@@ -85,14 +85,10 @@ curl https://notes.example.com/healthz    # ok
 
 ## Install the plugin
 
-Until Outcrop is in the community directory, install it with
-[BRAT](https://github.com/TfTHacker/obsidian42-brat):
-
-1. Install and enable **BRAT** from Obsidian's community plugins.
-2. BRAT → **Add beta plugin** → `sanketsaurav/outcrop`.
-3. Enable **Outcrop**, open its settings, enter the server URL and API key,
-   and run **Test connection**. On a fresh server this also installs the
-   default theme.
+Install **Outcrop** from Obsidian's community plugins (Settings → Community
+plugins → Browse), enable it, then open its settings, enter the server URL
+and API key, and run **Test connection**. On a fresh server this also
+installs the default theme.
 
 Manual install: download `manifest.json`, `main.js`, `styles.css` from the
 [latest release](https://github.com/sanketsaurav/outcrop/releases) into
@@ -182,6 +178,9 @@ make new shares `noindex` by default if you mostly share unlisted links.
   links to unshared notes are stripped, and frontmatter is never uploaded.
 - One API key gates all writes. It is compared in constant time and failed
   attempts are rate-limited.
+- The plugin reads the vault's file list to find shared notes by their
+  frontmatter, and writes to the clipboard when you copy a link or passcode.
+  It never reads the clipboard.
 - Public pages have a strict content-security policy; note HTML is sanitized
   at render time. The only third-party origins allowed are Google Fonts'.
 - Attachment URLs are content-addressed and unguessable, but they are not
@@ -223,7 +222,7 @@ docker compose pull && docker compose up -d
 ```
 
 Releases also publish `:X.Y.Z` tags to pin instead of `:latest`. The plugin
-updates through BRAT (or by copying the new release files).
+updates through Obsidian's normal community-plugin updates.
 
 ## Troubleshooting
 
@@ -235,8 +234,6 @@ updates through BRAT (or by copying the new release files).
 - **A shared note looks unstyled:** the theme was never pushed. Run **Push
   theme to server**, or **Test connection**, which pushes the default on a
   fresh server.
-- **BRAT cannot find the plugin:** the repository or its releases are not
-  public yet, or no release exists.
 - **Unlock attempts return "too many attempts":** the per-IP limit behind a
   proxy is counting the proxy as one client. Set `TRUST_PROXY=1`.
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.1 (2026-08-29)
+
+Addresses the community directory's automated review.
+
+### Fixes
+
+- Release assets now ship with GitHub artifact attestations, so their build
+  provenance can be verified.
+- Settings now appear in Obsidian's settings search (1.13+) via the
+  declarative settings API; the settings tab itself is unchanged.
+- Async UI callbacks are properly typed; server responses are typed at the
+  API boundary instead of flowing as `any`.
+- Default theme: the footer's external-link arrow no longer uses CSS masks,
+  the `:has()` selector is gone (tables are wrapped at render time instead),
+  and an `!important` was replaced with a more specific selector.
+
+### Upgrade notes
+
+- After updating, run **Push theme to server** and **Update all shared
+  notes** once: wide tables now scroll inside a wrapper that both the new
+  theme and re-published notes need to agree on.
+
 ## 0.1.0 (2026-08-29)
 
 First release.

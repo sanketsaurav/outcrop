@@ -69,7 +69,7 @@ export class OutcropClient {
 		if (resp.status >= 400) {
 			let msg = `server returned HTTP ${resp.status}`;
 			try {
-				const j = resp.json;
+				const j = resp.json as { error?: unknown };
 				if (j && typeof j.error === "string") msg = j.error;
 			} catch {
 				// non-JSON error body
@@ -79,16 +79,22 @@ export class OutcropClient {
 		return resp;
 	}
 
+	// requestUrl types .json as any — this is the one place we assert what the
+	// server contract returns.
+	private async reqJson<T>(method: string, path: string, body?: object | ArrayBuffer): Promise<T> {
+		return (await this.req(method, path, body)).json as T;
+	}
+
 	async ping(): Promise<PingResponse> {
-		return (await this.req("GET", "/api/v1/ping")).json;
+		return this.reqJson<PingResponse>("GET", "/api/v1/ping");
 	}
 
 	async createNote(payload: NotePayload): Promise<NoteResponse> {
-		return (await this.req("POST", "/api/v1/notes", payload)).json;
+		return this.reqJson<NoteResponse>("POST", "/api/v1/notes", payload);
 	}
 
 	async updateNote(id: string, payload: NotePayload): Promise<NoteResponse> {
-		return (await this.req("PUT", `/api/v1/notes/${id}`, payload)).json;
+		return this.reqJson<NoteResponse>("PUT", `/api/v1/notes/${id}`, payload);
 	}
 
 	async deleteNote(id: string): Promise<void> {
@@ -96,7 +102,7 @@ export class OutcropClient {
 	}
 
 	async rotate(id: string, slug?: string): Promise<NoteResponse> {
-		return (await this.req("POST", `/api/v1/notes/${id}/rotate`, slug ? { slug } : {})).json;
+		return this.reqJson<NoteResponse>("POST", `/api/v1/notes/${id}/rotate`, slug ? { slug } : {});
 	}
 
 	async setPasscode(id: string, passcode: string): Promise<void> {
@@ -108,8 +114,8 @@ export class OutcropClient {
 	}
 
 	async listNotes(): Promise<NoteResponse[]> {
-		const resp = await this.req("GET", "/api/v1/notes");
-		return resp.json.notes ?? [];
+		const body = await this.reqJson<{ notes?: NoteResponse[] }>("GET", "/api/v1/notes");
+		return body.notes ?? [];
 	}
 
 	async assetExists(hash: string): Promise<boolean> {
@@ -132,7 +138,10 @@ export class OutcropClient {
 	}
 
 	async getTheme(): Promise<{ css: string; js: string; head: string; updated_at: number }> {
-		return (await this.req("GET", "/api/v1/theme")).json;
+		return this.reqJson<{ css: string; js: string; head: string; updated_at: number }>(
+			"GET",
+			"/api/v1/theme",
+		);
 	}
 
 	async putTheme(theme: { css: string; js: string; head: string }): Promise<void> {

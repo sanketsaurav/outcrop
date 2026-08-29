@@ -395,7 +395,7 @@ export default class OutcropPlugin extends Plugin {
 
 	private mdCommand(
 		check: (file: TFile) => boolean,
-		action: (file: TFile) => void,
+		action: (file: TFile) => void | Promise<void>,
 	): (checking: boolean) => boolean {
 		return (checking: boolean) => {
 			const file = this.app.workspace.getActiveFile();

@@ -99,20 +99,27 @@ async function transform(
 		a.replaceWith(createSpan({ cls: "tag", text: a.textContent ?? "" }));
 	}
 
-	// 4. Stable heading ids for deep links.
+	// 4. Wrap tables so wide ones scroll in place (styled by the site theme).
+	for (const table of Array.from(root.querySelectorAll("table"))) {
+		const wrap = createDiv({ cls: "table-wrap" });
+		table.replaceWith(wrap);
+		wrap.appendChild(table);
+	}
+
+	// 5. Stable heading ids for deep links.
 	const used = new Map<string, number>();
 	for (const h of Array.from(root.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6"))) {
 		const id = dedupeSlug(headingSlug(h.textContent ?? ""), used);
 		if (id) h.setAttribute("id", id);
 	}
 
-	// 5. Math, best effort: clone MathJax's document-level styles into the payload.
+	// 6. Math, best effort: clone MathJax's document-level styles into the payload.
 	if (root.querySelector("mjx-container, .math")) {
 		const mjx = document.querySelector("style[id^='MJX'], #MJX-CHTML-styles");
 		if (mjx) root.prepend(mjx.cloneNode(true));
 	}
 
-	// 6. Sanitize. The server's CSP is the backstop; this keeps the payload clean.
+	// 7. Sanitize. The server's CSP is the backstop; this keeps the payload clean.
 	root.querySelectorAll("script, iframe, object, embed").forEach((el) => el.remove());
 	for (const el of Array.from(root.querySelectorAll<HTMLElement>("*"))) {
 		for (const attr of Array.from(el.attributes)) {
