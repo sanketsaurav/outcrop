@@ -1,45 +1,64 @@
 # Outcrop
 
-Share individual Obsidian notes publicly on **your own domain**.
+[![CI](https://github.com/sanketsaurav/outcrop/actions/workflows/ci.yml/badge.svg)](https://github.com/sanketsaurav/outcrop/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/sanketsaurav/outcrop?sort=semver)](https://github.com/sanketsaurav/outcrop/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Outcrop is two things in one repo:
+**Share individual Obsidian notes on your own domain.** Run one command in
+Obsidian and the note is live at `https://notes.yourdomain.com/…` — exactly as
+it looks in your vault. Edit the note and the public page updates itself.
 
-- an **Obsidian plugin** that renders a note exactly the way Obsidian does,
-  uploads it (with its images and attachments), and manages your share links —
-  including rotation, passcodes, and auto-updates on save;
-- a small **Go server** (single Docker image, SQLite, one data volume) that
-  serves those notes on your domain with proper SEO metadata, generated OG
-  images, and a theme you fully control from the plugin's settings.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+  <img alt="A shared note rendered by Outcrop" src="docs/screenshot-light.png" width="800">
+</picture>
 
-An *outcrop* is the part of the bedrock exposed at the surface — the publicly
-visible part of your vault.
+## Why Outcrop
 
-> Design details and API reference live in [SPEC.md](SPEC.md).
+- **Your domain, your server, your data.** A single small Docker container
+  (Go + SQLite, ~15 MB image, one data folder) that you can run anywhere.
+- **Perfect fidelity.** Notes are rendered by Obsidian itself, so callouts,
+  Mermaid diagrams, syntax highlighting, task lists, and even other plugins'
+  output (like Dataview) look right — not a server's approximation of your
+  markdown.
+- **Sharing you can take back.** Links are unguessable by default, can be
+  *rotated* (the old link dies instantly), or gated behind a memorable
+  passcode like `amber-falcon-83`.
+- **Auto-updating.** Shared notes re-publish a few seconds after you stop
+  typing. Images and attachments upload automatically and are deduplicated.
+- **Fully yours to style.** The site's CSS, JS, and `<head>` live in the
+  plugin's settings — edit a few design tokens or replace the whole thing.
+- **Good citizen of the web.** Every page ships real SEO metadata, a
+  generated social-preview image, a sitemap, and a visitor-facing
+  light/dark/system theme switcher.
 
-## How it works
+### How it compares
 
-1. Run "Share note" on any note. The plugin renders it inside Obsidian
-   (callouts, Mermaid, syntax highlighting, plugin output — everything you see),
-   uploads the HTML and attachments to your server, and writes `share_id` /
-   `share_url` into the note's frontmatter.
-2. The server hosts it at `https://notes.example.com/<slug>` — a 10-character
-   unguessable token by default, or a pretty custom slug if you set one.
-3. Edit the note and it re-publishes automatically (debounced). Rotate the link
-   to revoke it, add a passcode to gate it, or unshare to kill it.
+| | Outcrop | Obsidian Publish | Share Note (note.sx) | Digital Garden / Quartz |
+|---|---|---|---|---|
+| Hosting | **your server** | Obsidian's | note.sx | static hosts |
+| Domain | **yours** | theirs (custom = extra) | theirs | yours |
+| Scope | per note | whole vault | per note | whole site |
+| Styling | full CSS/JS | limited | limited | full (via code) |
+| Cost | your server | subscription | free | free |
 
-## Deploying the server
+Outcrop is for *"I want to hand someone a link to this one note, on my
+domain, and keep control of it."* If you want to publish a whole
+interconnected garden, Quartz or Digital Garden are better tools.
 
-You need: a domain (e.g. `notes.example.com`), a box with Docker, and a
-reverse proxy for TLS (Caddy shown here).
+## Quick start
+
+You need a domain, a machine with Docker, and about ten minutes.
+
+### 1. Deploy the server
 
 ```bash
 mkdir -p outcrop/data && cd outcrop
-# The container runs as uid 65532 (distroless nonroot):
-sudo chown 65532:65532 data
-openssl rand -hex 32   # this is your API key
+sudo chown 65532:65532 data      # the container runs as a non-root user
+openssl rand -hex 32             # this is your API key — keep it
 ```
 
-`compose.yaml`:
+Create `compose.yaml`:
 
 ```yaml
 services:
@@ -47,18 +66,18 @@ services:
     image: ghcr.io/sanketsaurav/outcrop:latest
     restart: unless-stopped
     environment:
-      API_KEY: ${OUTCROP_API_KEY}          # the key you just generated
+      API_KEY: ${OUTCROP_API_KEY}
       BASE_URL: https://notes.example.com
-      SITE_NAME: notes.example.com          # optional, used in titles/OG images
-      SITE_AUTHOR: Your Name                # optional, JSON-LD author
-      TRUST_PROXY: "1"                      # you're behind Caddy
+      SITE_AUTHOR: Your Name        # optional
+      TRUST_PROXY: "1"
     volumes:
       - ./data:/data
     ports:
       - "127.0.0.1:8080:8080"
 ```
 
-Caddyfile:
+Put TLS in front with any reverse proxy — with [Caddy](https://caddyserver.com)
+it's two lines:
 
 ```
 notes.example.com {
@@ -66,163 +85,174 @@ notes.example.com {
 }
 ```
 
+Start it and check it's alive:
+
 ```bash
-OUTCROP_API_KEY=<key> docker compose up -d
-curl https://notes.example.com/healthz   # → ok
+OUTCROP_API_KEY=<your key> docker compose up -d
+curl https://notes.example.com/healthz    # → ok
 ```
 
-All configuration ([full list in the spec](SPEC.md#61-configuration-env-vars)):
-`API_KEY` (or `API_KEY_FILE`), `BASE_URL` — required; `LISTEN_ADDR`,
-`DATA_DIR`, `SITE_NAME`, `SITE_AUTHOR`, `OG_ACCENT`, `MAX_NOTE_MB`,
-`MAX_ASSET_MB`, `TRUST_PROXY` — optional.
+### 2. Install the plugin
 
-**Backups**: everything lives in the data volume (`outcrop.db` + `blobs/`).
-`docker compose stop && tar czf backup.tgz data && docker compose start`.
-[Litestream](https://litestream.io) works too if you want continuous replication.
-
-## Installing the plugin
-
-Until it's in the community directory, install with
+Until Outcrop is in the community directory, install it with
 [BRAT](https://github.com/TfTHacker/obsidian42-brat):
 
-1. Install "BRAT" from Obsidian's community plugins.
-2. BRAT → *Add beta plugin* → `sanketsaurav/outcrop`.
-3. Enable **Outcrop**, open its settings, set **Server URL** and **API key**,
-   hit **Test connection**. On a fresh server this also pushes the default
-   theme.
+1. In Obsidian, install and enable **BRAT** from Community plugins.
+2. BRAT → **Add beta plugin** → `sanketsaurav/outcrop`.
+3. Enable **Outcrop**, open its settings, enter your **Server URL** and
+   **API key**, and hit **Test connection**. On a fresh server this also
+   installs the default theme.
 
-Or manually: grab `manifest.json`, `main.js`, `styles.css` from the latest
-plugin release into `<vault>/.obsidian/plugins/outcrop/`.
+(Manual install: download `manifest.json`, `main.js`, `styles.css` from the
+[latest release](https://github.com/sanketsaurav/outcrop/releases) into
+`<vault>/.obsidian/plugins/outcrop/`.)
 
-## Using it
+### 3. Share a note
+
+Open any note → command palette → **Outcrop: Share current note**. The link
+is on your clipboard. That's it.
+
+## Everyday use
 
 | Command | What it does |
 |---|---|
-| **Share current note** | Creates the share (or pushes an update), copies the link. |
-| **Copy share link** | Clipboard, no network. |
-| **Rotate share link** | New URL; the old one is dead. This is how you revoke a leaked link. |
-| **Protect note with a passcode** | Generates a memorable passcode (`amber-falcon-83`), stores it in frontmatter, gates the page behind it. |
+| **Share current note** | Publishes (or updates) the note and copies the link. |
+| **Copy share link** / **Copy passcode** | Straight to the clipboard. |
+| **Rotate share link** | New URL, old one dies instantly — how you revoke a leaked link. |
+| **Protect note with a passcode** | Generates a memorable passcode and gates the page. |
 | **Remove passcode** | Opens the note back up. |
-| **Unshare current note** | Deletes it from the server, cleans frontmatter. |
-| **Update all shared notes** | Re-publishes everything (use after theme changes). |
-| **Open shared notes list** | Table of every share: copy / open / update / rotate / delete, orphan detection. |
-| **Push theme to server** | Deploys the CSS/JS/head snippet from settings. |
+| **Unshare current note** | Deletes it from the server. |
+| **Update all shared notes** | Re-publishes everything (after theme changes). |
+| **Open shared notes list** | A table of every share: copy, open, update, rotate, delete. |
+| **Push theme to server** | Deploys your CSS/JS/head edits site-wide. |
 
-Shared notes update automatically a few seconds after you stop editing
-(configurable, or turn it off). The status bar shows `⛰ shared` on shared
-notes — click it for update/copy/rotate/unshare without leaving the keyboard…
-fine, the mouse. The same actions live in the file context menu.
+Everything is also available from a note's right-click menu, and shared notes
+show a `⛰ shared` status-bar item whose click menu has the same actions.
+Edits push automatically a few seconds after you stop typing (configurable,
+or turn it off).
 
-### Frontmatter
+Wikilinks between shared notes become working public links, and when you
+share, unshare, or rotate a note, other shared notes that link to it are
+refreshed automatically. Links to unshared notes degrade to plain text.
+**Frontmatter is never published.**
 
-The plugin owns these properties (prefix configurable):
+### The frontmatter Outcrop uses
+
+The plugin stores share state as note properties, so it survives sync and
+renames:
 
 ```yaml
-share_id: 8fK2…        # stable identity — don't edit
+share_id: 8fK2…                    # managed by the plugin — don't edit
 share_url: https://notes.example.com/V5tGkq2Xw8
-share_passcode: amber-falcon-83   # present only on protected notes; delete it (and update) to unprotect
+share_passcode: amber-falcon-83    # only on protected notes; edit to change, delete to unprotect
 ```
 
-And you can set these yourself:
+Optional properties you can set yourself:
 
 ```yaml
-share_slug: how-i-take-notes   # pretty URL; applied on next share/update
+share_slug: how-i-take-notes   # a pretty URL instead of the random token
 share_title: Override title
-share_description: Custom description for meta/OG tags
-share_noindex: true            # keep this note out of search engines & the sitemap
+share_description: Custom description for search/social previews
+share_noindex: true            # keep this note out of search engines and the sitemap
 ```
 
-Wikilinks to other **shared** notes become working public links (and when you
-share/unshare/rotate a note, shared notes linking to it are refreshed).
-Wikilinks to unshared notes degrade to plain text. Frontmatter is never
-published.
+### Passcodes, honestly
+
+Passcodes are hashed on the server (PBKDF2), attempts are rate-limited, and
+rotating a link or changing the passcode kicks out everyone who unlocked it.
+At ~23 bits of entropy they're **"not for everyone" protection, not a
+secrets vault** — right for a note you're sharing with a few people, wrong
+for your tax documents.
 
 ## Theming
 
-Three editable pieces in plugin settings, served on every page:
+Three editable pieces in the plugin's settings, served on every public page:
 
-- **Site CSS** — starts with a design-token block (`--font-text`, `--accent`,
-  `--max-width`, light/dark palettes…). Most personalization is a few lines
-  here. Below the tokens, the default theme styles everything Obsidian emits:
-  callouts, task lists, code (with syntax colors), tables, embeds, footnotes,
-  Mermaid, the unlock page.
-- **Site JS** — powers the footer theme switcher (light/dark/system, persisted
-  per visitor), heading anchors, and external-links-in-new-tabs; extend as you
-  like. The CSP allows only this file to execute.
-- **Head snippet** — HTML injected into `<head>`. This is where **Google
-  Fonts** go; the default contains a commented working example. The server's
-  CSP allowlists exactly `fonts.googleapis.com` + `fonts.gstatic.com` and no
-  other third-party origin.
+- **Site CSS** — opens with a design-token block (fonts, colors, measure,
+  radius; separate light and dark palettes). Most personalization is a few
+  lines here. Below the tokens, everything Obsidian emits is styled:
+  callouts, task lists, code with syntax colors, tables, embeds, footnotes.
+- **Site JS** — powers the footer theme switcher, heading anchors, and
+  external-link handling. Extend it freely; the server's security policy
+  allows only this file to run.
+- **Head snippet** — HTML injected into `<head>`. Google Fonts go here
+  (a working example ships commented out); the default theme loads Google
+  Sans, Google Sans Code, and Crimson Pro as variable fonts.
 
-Edit → **Push theme** → every shared note restyles. For full page-structure
-control, drop a `template.html` into the server's data dir (same variables as
-[the built-in template](SPEC.md#64-public-routes)).
+Edit → **Push theme to server** → every shared note restyles. For full
+control of the page structure, drop a `template.html` into the server's data
+folder — the built-in template's contract is documented in
+[SPEC.md](SPEC.md).
 
-## SEO
+## SEO & sharing previews
 
-Public notes get: canonical URL, meta description, OpenGraph + Twitter cards,
-`article:published/modified_time`, JSON-LD `Article`, a generated **1200×630
-OG image** from the note title, and a `sitemap.xml` linked from `robots.txt`.
+Public notes get canonical URLs, meta descriptions, OpenGraph and Twitter
+cards, JSON-LD, and a **generated 1200×630 preview image** from the note's
+title — pasting a link into Slack or social media shows a proper card. A
+`sitemap.xml` lists your indexable notes; anything marked `share_noindex`
+(or protected by a passcode) stays out of it and carries a `noindex` tag.
 
-Notes marked `share_noindex` (or shared with "keep out of search engines" on)
-get a `noindex` meta/header and stay out of the sitemap — use that for
-unlisted capability links. Passcode-protected notes are always noindex and
-never in the sitemap.
+## Privacy & security
 
-## Security model, honestly
-
-- One API key gates all writes (constant-time compare, fail-closed, rate-limited).
-- No CORS, ever — browsers can't be tricked into calling the API; the plugin
-  uses Obsidian's native requester.
-- Public pages carry a strict CSP; note HTML is sanitized at render time and
-  inline scripts can't execute regardless.
-- Passcodes are PBKDF2-hashed, rate-limited (5/min/IP per note), and unlock
-  cookies die on rotation or passcode change. At ~23 bits of entropy they're
-  "not for everyone" protection, not a secrets vault.
-- Attachment URLs are content-addressed (SHA-256) capability URLs; they are
+- Sharing is **opt-in per note**. Nothing leaves your vault until you run
+  Share, and unsharing deletes the note and garbage-collects its attachments.
+- One API key (set by you) gates all writes; it's compared in constant time
+  and failed attempts are rate-limited.
+- Public pages carry a strict Content-Security-Policy; note HTML is
+  sanitized at render time; the only third-party origins ever allowed are
+  Google Fonts'.
+- Attachment URLs are unguessable content-addressed capability URLs; they're
   not gated by note passcodes.
-- TLS is your reverse proxy's job.
+- TLS is your reverse proxy's job. The server never phones home, tracks
+  visitors, or embeds analytics (unless you add some to your theme).
 
-## Development
+## Server reference
 
-```bash
-make hooks       # one-time: enable pre-commit hooks (gofmt/vet + prettier/eslint on staged files)
-make test        # server: gofmt check, vet, tests · plugin: unit tests, lint, typecheck, build
-make server-dev  # run the server on :8080 with throwaway config
-make plugin-dev  # rebuild plugin on change (symlink the repo into a test vault)
-make docker      # build the image locally
-```
+All configuration is environment variables:
 
-Layout: `server/` (Go 1.24+, stdlib + modernc sqlite + x/image only),
-`plugin/` (TypeScript, esbuild, no runtime deps; vitest for unit tests,
-prettier + eslint for style), `manifest.json` at the root (Obsidian
-convention). CI runs the same checks on every push/PR.
+| Variable | Default | What it does |
+|---|---|---|
+| `API_KEY` | — | **Required.** Shared secret between plugin and server (`API_KEY_FILE` works too). |
+| `BASE_URL` | — | **Required.** Public origin, e.g. `https://notes.example.com`. |
+| `SITE_NAME` | host of `BASE_URL` | Shown in page titles and preview images. |
+| `SITE_AUTHOR` | — | Author name for structured data. |
+| `OG_ACCENT` | `#6c5ce7` | Accent color in generated preview images. |
+| `MAX_NOTE_MB` / `MAX_ASSET_MB` | `2` / `25` | Upload size limits. |
+| `TRUST_PROXY` | `0` | Set `1` behind a reverse proxy so rate limits see real client IPs. |
+| `LISTEN_ADDR` / `DATA_DIR` | `:8080` / `/data` | Rarely need changing. |
 
-### Releasing
+**Backups:** everything lives in the data folder (`outcrop.db` + `blobs/`):
+`docker compose stop && tar czf backup.tgz data && docker compose start`.
+[Litestream](https://litestream.io) works if you want continuous replication.
 
-Both artifacts release from tags, fully automated by GitHub Actions:
+**Updating:** `docker compose pull && docker compose up -d`. The database
+migrates itself.
 
-```bash
-make release-plugin V=0.1.1   # bumps manifest.json/versions.json/package.json, commits, tags 0.1.1
-make release-server V=0.1.1   # tags server-v0.1.1
-git push origin main --tags   # workflows create the GitHub release + GHCR image
-```
+## FAQ
 
-Plugin tags are bare semver matching `manifest.json` (the Obsidian
-community/BRAT requirement); the workflow refuses a tag that doesn't match.
-The release carries `manifest.json`, `main.js`, `styles.css` as assets.
-Server tags produce `ghcr.io/sanketsaurav/outcrop:{version,latest}` for
-amd64 + arm64.
+**Does it work on mobile?** Yes — the plugin is not desktop-only.
 
-### Publishing to the Obsidian community directory
+**Can visitors see my vault?** No. Only notes you explicitly share exist on
+the server, links to unshared notes are stripped, and frontmatter is never
+published.
 
-1. Ship at least one plugin release (bare semver tag, per above).
-2. Fork [obsidianmd/obsidian-releases](https://github.com/obsidianmd/obsidian-releases)
-   and add an entry to `community-plugins.json`:
-   `{"id": "outcrop", "name": "Outcrop", "author": "Sanket Saurav", "description": …, "repo": "sanketsaurav/outcrop"}`.
-3. Open the PR using their template and work through the automated validation
-   plus human review (this can take a few weeks). Until it's merged, BRAT
-   installs work from the releases directly.
+**What if I delete a shared note from my vault?** The share keeps working
+until you delete it — it shows up flagged in the shared-notes list, where
+you can remove it.
+
+**Can I keep shared notes out of Google?** Yes — per note with
+`share_noindex: true`, or flip the "keep new shares out of search engines"
+default in settings if you mostly share unlisted links.
+
+**What doesn't survive publishing?** Content that renders asynchronously
+slower than the capture delay (raise it in settings), and math is
+best-effort. Everything else you see in reading view is what visitors get.
+
+## Contributing
+
+Bug reports and PRs welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers the
+dev setup, tests, and release process; [SPEC.md](SPEC.md) documents the
+architecture and API.
 
 ## License
 
