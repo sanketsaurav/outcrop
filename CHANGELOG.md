@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.3 (2026-08-31)
+
+### Features
+
+- Per-note style variants: a `share_class` frontmatter property adds CSS
+  classes to the published note's body (sanitized to plain identifiers).
+  The default theme ships a `justify` variant — justified text with
+  hyphenation. Define your own variants in the site CSS.
+
+### Fixes
+
+- Paragraph spacing on public pages increased from 0.5em to 0.9em.
+
+### Upgrade notes
+
+- Push the theme once after updating so the `justify` styles (and the new
+  spacing) are on your server, then set `share_class: justify` on any note
+  you want justified and let it re-publish.
+
 ## 0.1.2 (2026-08-29)
 
 ### Fixes
