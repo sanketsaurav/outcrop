@@ -263,7 +263,7 @@ body {
 .note-body h5, .note-body h6 { font-size: 1em; font-weight: 600; color: var(--muted); }
 
 .note-body p {
-	margin: 0 0 0.5em;
+	margin: 0 0 0.9em;
 }
 
 strong, b {
