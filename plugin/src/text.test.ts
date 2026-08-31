@@ -64,7 +64,9 @@ describe("classList", () => {
 	});
 
 	it("drops anything that isn't a plain class token", () => {
-		expect(classList('justify" onload="x')).toBe("justify");
+		// A token with a quote glued on is dropped whole — nothing to salvage.
+		expect(classList('justify" onload="x')).toBe("");
+		expect(classList('justify "quoted" wide')).toBe("justify wide");
 		expect(classList("ok <script> .dot two;three")).toBe("ok");
 		expect(classList(42)).toBe("");
 		expect(classList(undefined)).toBe("");
