@@ -1,6 +1,6 @@
 import { Component, MarkdownRenderer, TFile } from "obsidian";
 import type OutcropPlugin from "./main";
-import { clamp, dedupeSlug, headingSlug } from "./text";
+import { clamp, classList, dedupeSlug, headingSlug } from "./text";
 
 export interface AssetUpload {
 	hash: string;
@@ -51,10 +51,22 @@ export async function renderNote(plugin: OutcropPlugin, file: TFile): Promise<Re
 
 		const title = noteTitle(plugin, file, fm, container);
 		const description = noteDescription(fm, plugin, container);
+
+		// share_class: extra CSS classes for this note, wrapped client-side so
+		// the server needs no schema for it. The theme styles them.
+		let html = container.innerHTML;
+		const classes = classList(fm[plugin.props.class]);
+		if (classes) {
+			const wrapper = createDiv();
+			wrapper.className = classes;
+			wrapper.innerHTML = html;
+			html = wrapper.outerHTML;
+		}
+
 		return {
 			title,
 			description,
-			html: container.innerHTML,
+			html,
 			assets: [...assets.values()],
 		};
 	} finally {

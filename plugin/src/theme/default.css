@@ -283,6 +283,14 @@ strong, b {
 	opacity: 0.7; /* links never change color on hover — only opacity */
 }
 
+/* Per-note style variants: set share_class in a note's frontmatter and the
+   classes land on a wrapper inside .note-body. `justify` ships by default —
+   define your own variants alongside it. */
+.note-body .justify {
+	text-align: justify;
+	hyphens: auto;
+}
+
 /* Wikilinks whose targets aren't shared (when "styled non-link" is chosen). */
 .unshared-link {
 	border-bottom: 1px dotted var(--muted);

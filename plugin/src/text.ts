@@ -21,3 +21,10 @@ export function dedupeSlug(slug: string, used: Map<string, number>): string {
 export function clamp(s: string, max = 200): string {
 	return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + "…";
 }
+
+/** Normalizes a frontmatter class list (string or YAML list) to safe CSS
+ * class tokens, dropping anything that isn't a plain identifier. */
+export function classList(v: unknown): string {
+	const parts = Array.isArray(v) ? v.map(String) : typeof v === "string" ? v.split(/\s+/) : [];
+	return parts.filter((c) => /^[A-Za-z0-9_-]+$/.test(c)).join(" ");
+}

@@ -132,6 +132,8 @@ share_slug: how-i-take-notes   # readable URL instead of the random token
 share_title: Override title
 share_description: Custom description for search and link previews
 share_noindex: true            # keep this note out of search engines and the sitemap
+share_class: justify           # extra CSS classes on this note's body; the theme
+                               # defines what they do ("justify" ships by default)
 ```
 
 ### Passcodes

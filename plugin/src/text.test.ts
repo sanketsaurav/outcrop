@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clamp, dedupeSlug, headingSlug } from "./text";
+import { clamp, classList, dedupeSlug, headingSlug } from "./text";
 
 describe("headingSlug", () => {
 	it("lowercases and hyphenates", () => {
@@ -54,5 +54,19 @@ describe("clamp", () => {
 	it("trims trailing whitespace before the ellipsis", () => {
 		// slice(0, 6) of "words and" is "words " — the space must not survive.
 		expect(clamp("words and", 7)).toBe("words…");
+	});
+});
+
+describe("classList", () => {
+	it("accepts strings and YAML lists", () => {
+		expect(classList("justify wide")).toBe("justify wide");
+		expect(classList(["justify", "wide"])).toBe("justify wide");
+	});
+
+	it("drops anything that isn't a plain class token", () => {
+		expect(classList('justify" onload="x')).toBe("justify");
+		expect(classList("ok <script> .dot two;three")).toBe("ok");
+		expect(classList(42)).toBe("");
+		expect(classList(undefined)).toBe("");
 	});
 });

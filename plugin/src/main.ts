@@ -21,6 +21,7 @@ export interface FrontmatterProps {
 	title: string;
 	description: string;
 	noindex: string;
+	class: string;
 }
 
 export default class OutcropPlugin extends Plugin {
@@ -39,6 +40,7 @@ export default class OutcropPlugin extends Plugin {
 			title: `${p}_title`,
 			description: `${p}_description`,
 			noindex: `${p}_noindex`,
+			class: `${p}_class`,
 		};
 	}
 
