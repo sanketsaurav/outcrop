@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"crypto/sha256"
+	_ "embed"
 	"encoding/hex"
 	"image"
 	"image/color"
@@ -13,11 +14,16 @@ import (
 	"sync"
 
 	"golang.org/x/image/font"
-	"golang.org/x/image/font/gofont/gobold"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
 )
+
+// The note title renders in the same serif the default theme uses for titles.
+// Crimson Pro is licensed under the SIL Open Font License (see fonts/OFL.txt).
+//
+//go:embed fonts/CrimsonPro-Italic-SemiBold.ttf
+var crimsonItalicTTF []byte
 
 const (
 	ogWidth   = 1200
@@ -25,18 +31,23 @@ const (
 	ogMargin  = 80
 	ogTextW   = ogWidth - 2*ogMargin
 	ogMaxRows = 4
+	// Baseline of the title's last line — the block grows upward from here,
+	// sitting just above the accent bar.
+	ogLastBaseline = 556
 )
 
 var (
-	ogBG         = color.RGBA{0x0f, 0x0f, 0x14, 0xff}
-	ogTitleCol   = color.RGBA{0xf4, 0xf4, 0xf5, 0xff}
-	ogMutedCol   = color.RGBA{0x9c, 0xa3, 0xaf, 0xff}
-	ogTitleSizes = []int{64, 56, 48}
+	ogBG       = color.RGBA{0x0f, 0x0f, 0x14, 0xff}
+	ogTitleCol = color.RGBA{0xf4, 0xf4, 0xf5, 0xff}
+	ogSiteCol  = color.RGBA{0xd6, 0xd6, 0xda, 0xff}
+	// Crimson Pro has a small x-height, so title sizes run larger than the
+	// sans equivalents would.
+	ogTitleSizes = []int{76, 66, 56}
 )
 
-// ogRenderer draws 1200×630 share images: site name up top, the note title
-// large and wrapped, an accent bar along the bottom. Rendered images are
-// cached in memory keyed by title.
+// ogRenderer draws 1200×630 share images: site name up top, the note title in
+// italic serif anchored to the bottom, an accent bar along the bottom edge.
+// Rendered images are cached in memory keyed by title.
 type ogRenderer struct {
 	siteName string
 	accent   color.RGBA
@@ -48,7 +59,7 @@ type ogRenderer struct {
 }
 
 func newOGRenderer(siteName, accentHex string) (*ogRenderer, error) {
-	bold, err := opentype.Parse(gobold.TTF)
+	title, err := opentype.Parse(crimsonItalicTTF)
 	if err != nil {
 		return nil, err
 	}
@@ -62,11 +73,11 @@ func newOGRenderer(siteName, accentHex string) (*ogRenderer, error) {
 		faces:    make(map[int]font.Face),
 		cache:    make(map[string][]byte),
 	}
-	if r.siteFace, err = opentype.NewFace(regular, &opentype.FaceOptions{Size: 30, DPI: 72, Hinting: font.HintingFull}); err != nil {
+	if r.siteFace, err = opentype.NewFace(regular, &opentype.FaceOptions{Size: 37, DPI: 72, Hinting: font.HintingFull}); err != nil {
 		return nil, err
 	}
 	for _, size := range ogTitleSizes {
-		face, err := opentype.NewFace(bold, &opentype.FaceOptions{Size: float64(size), DPI: 72, Hinting: font.HintingFull})
+		face, err := opentype.NewFace(title, &opentype.FaceOptions{Size: float64(size), DPI: 72, Hinting: font.HintingFull})
 		if err != nil {
 			return nil, err
 		}
@@ -110,7 +121,7 @@ func (r *ogRenderer) draw(title string) ([]byte, error) {
 	draw.Draw(img, img.Bounds(), image.NewUniform(ogBG), image.Point{}, draw.Src)
 	draw.Draw(img, image.Rect(0, ogHeight-10, ogWidth, ogHeight), image.NewUniform(r.accent), image.Point{}, draw.Src)
 
-	drawString(img, r.siteFace, ogMutedCol, ogMargin, 120, r.siteName)
+	drawString(img, r.siteFace, ogSiteCol, ogMargin, 124, r.siteName)
 
 	// Pick the largest title size that fits in ogMaxRows lines.
 	size := ogTitleSizes[len(ogTitleSizes)-1]
@@ -128,8 +139,10 @@ func (r *ogRenderer) draw(title string) ([]byte, error) {
 		lines = lines[:ogMaxRows]
 		lines[ogMaxRows-1] += "…"
 	}
-	lineH := size * 13 / 10
-	y := 230 + size/2
+
+	// Bottom-anchored: the last line's baseline is fixed and the block grows up.
+	lineH := size * 115 / 100
+	y := ogLastBaseline - (len(lines)-1)*lineH
 	for _, line := range lines {
 		drawString(img, face, ogTitleCol, ogMargin, y, ellipsize(face, line, ogTextW))
 		y += lineH
