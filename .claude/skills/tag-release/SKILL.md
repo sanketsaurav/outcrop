@@ -89,9 +89,11 @@ release workflow matches it against the tag:
 ```
 
 Write user-facing prose from the actual changes (read the diffs when commit
-subjects aren't enough) — not raw commit subjects. Omit empty sections; fold
-notable internals into a short `### Internal` section only when worth telling
-users. Call out anything self-hosters must act on — new env vars, a server
+subjects aren't enough) — not raw commit subjects. Omit empty sections. Never
+add an `### Internal` section or internal-only bullets (lint, typing,
+refactors, tooling, review-bot cleanups) — the changelog is user-facing only;
+that context belongs in the commit message. Call out anything self-hosters
+must act on — new env vars, a server
 restart needed for template changes, a "run Update all shared notes" needed
 after theme-affecting changes — in an `### Upgrade notes` section. When a
 server release ships alongside, describe its changes in a `### Server`
