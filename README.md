@@ -5,9 +5,7 @@ one SQLite database, and an Obsidian plugin. Run "Share note" on any note and
 it is live at `https://notes.example.com/<slug>`, rendered the way it looks
 in your vault. Edit the note and the page updates itself a few seconds later.
 
-I built Outcrop to publish notes from my own vault at
-[notes.sanketsaurav.com](https://notes.sanketsaurav.com). It has the
-essential primitives for sharing notes:
+It has the essential primitives for sharing notes:
 
 - share, update, and unshare single notes from the command palette, the file
   menu, or the status bar
