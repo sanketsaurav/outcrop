@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.4 (2026-09-02)
+
+### Fixes
+
+- Notes with a `share_class` are wrapped by moving the rendered nodes into
+  the wrapper instead of re-parsing the note's HTML, which the Obsidian
+  community plugin review flags as an unsafe `innerHTML` assignment. The
+  published markup is unchanged.
+
+### Upgrade notes
+
+- The minimum Obsidian version is now 1.7.2 (was 1.5.0). The plugin already
+  used APIs added in Obsidian 1.5.7 and 1.7.2, so earlier versions never
+  worked; this corrects the declared requirement.
+
 ## 0.1.3 (2026-08-31)
 
 ### Features
