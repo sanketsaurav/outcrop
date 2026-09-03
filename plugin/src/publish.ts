@@ -86,7 +86,7 @@ export async function shareNote(
 			new Notice("Outcrop: passcode removed (no passcode in frontmatter).");
 		}
 
-		await plugin.app.fileManager.processFrontMatter(file, (f) => {
+		await plugin.app.fileManager.processFrontMatter(file, (f: Record<string, unknown>) => {
 			f[props.id] = note.id;
 			f[props.url] = note.url;
 		});
@@ -147,7 +147,7 @@ export async function unshareNote(plugin: OutcropPlugin, file: TFile, opts: Shar
 			return;
 		}
 	}
-	await plugin.app.fileManager.processFrontMatter(file, (f) => {
+	await plugin.app.fileManager.processFrontMatter(file, (f: Record<string, unknown>) => {
 		delete f[props.id];
 		delete f[props.url];
 		delete f[props.passcode];
@@ -166,7 +166,7 @@ export async function rotateNote(plugin: OutcropPlugin, file: TFile) {
 	}
 	try {
 		const note = await plugin.client.rotate(id);
-		await plugin.app.fileManager.processFrontMatter(file, (f) => {
+		await plugin.app.fileManager.processFrontMatter(file, (f: Record<string, unknown>) => {
 			f[props.url] = note.url;
 			delete f[props.slug]; // rotation is a revocation — drop any pinned slug
 		});
@@ -187,7 +187,7 @@ export async function protectNote(plugin: OutcropPlugin, file: TFile) {
 		fm = plugin.fm(file);
 	}
 	const passcode = strProp(fm?.[props.passcode]) ?? generatePasscode();
-	await plugin.app.fileManager.processFrontMatter(file, (f) => {
+	await plugin.app.fileManager.processFrontMatter(file, (f: Record<string, unknown>) => {
 		f[props.passcode] = passcode;
 	});
 	const id = strProp(plugin.fm(file)?.[props.id]);
@@ -211,7 +211,7 @@ export async function removePasscode(plugin: OutcropPlugin, file: TFile) {
 	}
 	try {
 		await plugin.client.clearPasscode(id);
-		await plugin.app.fileManager.processFrontMatter(file, (f) => {
+		await plugin.app.fileManager.processFrontMatter(file, (f: Record<string, unknown>) => {
 			delete f[props.passcode];
 		});
 		new Notice("Outcrop: passcode removed — the link now opens for everyone.");
@@ -258,7 +258,7 @@ export async function unshareAll(plugin: OutcropPlugin): Promise<void> {
 			await plugin.client.deleteNote(n.id);
 			const file = index.get(n.id);
 			if (file) {
-				await plugin.app.fileManager.processFrontMatter(file, (f) => {
+				await plugin.app.fileManager.processFrontMatter(file, (f: Record<string, unknown>) => {
 					delete f[plugin.props.id];
 					delete f[plugin.props.url];
 					delete f[plugin.props.passcode];

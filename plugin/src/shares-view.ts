@@ -45,7 +45,7 @@ export class SharesView extends ItemView {
 			notes = await this.plugin.client.listNotes();
 		} catch (e) {
 			el.createEl("p", {
-				text: `Couldn't reach the server: ${e instanceof Error ? e.message : e}`,
+				text: `Couldn't reach the server: ${e instanceof Error ? e.message : String(e)}`,
 			});
 			return;
 		}
@@ -86,7 +86,7 @@ export class SharesView extends ItemView {
 				const link = titleTd.createEl("a", { text: note.title });
 				link.onclick = (e) => {
 					e.preventDefault();
-					this.app.workspace.getLeaf(false).openFile(file);
+					void this.app.workspace.getLeaf(false).openFile(file);
 				};
 			} else {
 				titleTd.setText(note.title);
@@ -150,7 +150,9 @@ export class SharesView extends ItemView {
 							try {
 								await this.plugin.client.deleteNote(note.id);
 							} catch (e) {
-								new Notice(`Outcrop: delete failed — ${e instanceof Error ? e.message : e}`);
+								new Notice(
+									`Outcrop: delete failed — ${e instanceof Error ? e.message : String(e)}`,
+								);
 							}
 						}
 						await this.refresh();

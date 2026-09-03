@@ -53,15 +53,16 @@ export async function renderNote(plugin: OutcropPlugin, file: TFile): Promise<Re
 		const description = noteDescription(fm, plugin, container);
 
 		// share_class: extra CSS classes for this note, wrapped client-side so
-		// the server needs no schema for it. The theme styles them.
-		let html = container.innerHTML;
+		// the server needs no schema for it. The theme styles them. The rendered
+		// nodes are moved into the wrapper, never re-parsed from a string.
 		const classes = classList(fm[plugin.props.class]);
 		if (classes) {
 			const wrapper = createDiv();
 			wrapper.className = classes;
-			wrapper.innerHTML = html;
-			html = wrapper.outerHTML;
+			wrapper.append(...Array.from(container.childNodes));
+			container.appendChild(wrapper);
 		}
+		const html = container.innerHTML;
 
 		return {
 			title,

@@ -278,7 +278,7 @@ export default class OutcropPlugin extends Plugin {
 			const view = leaf.view;
 			if (view instanceof SharesView) void view.refresh();
 		}
-		workspace.revealLeaf(leaf);
+		await workspace.revealLeaf(leaf);
 	}
 
 	async pushTheme() {
